@@ -1,71 +1,225 @@
 # Bank Management System
 
-A simple Java application for managing bank operations such as customers, accounts, and transactions.
+A modern, full-stack bank management system built with **Spring Boot** backend and **React** frontend, using **PostgreSQL** as the database.
 
 ## Features
 
-- Customer Management:
-  - Create, view, update, and delete customers
-  - Search customers by name
-  - List all customers
+- **Customer Management**: Add, edit, delete, and search customers
+- **Account Management**: Create and manage different types of accounts (Savings, Checking, Fixed Deposit)
+- **Transaction Processing**: Handle deposits, withdrawals, transfers, and interest credits
+- **User Authentication**: Secure login and registration system
+- **Role-based Access Control**: Different permissions for different user roles
+- **Modern UI**: Responsive design with Bootstrap and React
+- **RESTful API**: Clean, well-documented API endpoints
+- **Real-time Database**: Powered by PostgreSQL
 
-- Account Management:
-  - Create different types of accounts (Savings, Checking, Fixed Deposit)
-  - View account details
-  - Update account details
-  - Close accounts
-  - List accounts by customer
+## Architecture
 
-- Transaction Management:
-  - Deposit funds
-  - Withdraw funds
-  - Transfer funds between accounts
-  - View transaction history
-  - View account statements by date range
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   React Frontend│    │ Spring Boot API │    │  Database       │
+│                 │◄──►│                 │◄──►│                 │
+│   - Dashboard   │    │   - Controllers │    │   - PostgreSQL  │
+│   - Forms       │    │   - Services    │    │   - Real-time   │
+│   - Tables      │    │   - Repositories│    │   - Auth        │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
 
-## System Requirements
+## Quick Start
 
-- Java 8 or higher
-- MySQL 5.7 or higher
+### Prerequisites
 
-## Installation and Setup
+- **Java 17** or higher
+- **Node.js 16** or higher
+- **Maven 3.6** or higher
+- **PostgreSQL** database
 
-1. Clone the repository or download the source code
-2. Import the project into your IDE
-3. Set up the MySQL database:
-   - Create a database named `bank_management`
-   - Run the SQL script `src/main/resources/database/bank_db.sql` to create tables and sample data
-4. Edit the database connection settings in `src/main/java/com/bankmanagement/dao/DatabaseConnection.java` with your MySQL credentials
-5. Add MySQL JDBC driver jar to your classpath (from the lib folder)
-6. Compile and run the application
+### 1. Clone the Repository
 
-## Project Structure
+```bash
+git clone <repository-url>
+cd BankManagementSystem
+```
 
-- `src/main/java/com/bankmanagement/model/`: Contains the model classes
-- `src/main/java/com/bankmanagement/dao/`: Contains the data access objects
-- `src/main/java/com/bankmanagement/controller/`: Contains the controller classes
-- `src/main/java/com/bankmanagement/view/`: Contains the view classes
-- `src/main/java/com/bankmanagement/util/`: Contains utility classes
-- `src/main/resources/database/`: Contains database scripts
+### 2. Set Up Database
 
-## Running the Application
+1. Install PostgreSQL on your system
+2. Create a new database named `bank_management`
+3. Update the database connection details in the environment variables
 
-Run the `BankManagementApp.java` class to start the application.
+### 3. Configure Environment Variables
 
-## Usage
+Create a `.env` file in the `backend` directory:
 
-The application provides a console-based interface with menus for managing bank operations:
+```env
+# Database Configuration
+DATABASE_URL=jdbc:postgresql://localhost:5432/bank_management
+DATABASE_USERNAME=postgres
+DATABASE_PASSWORD=your_database_password
 
-1. Customer Management
-2. Account Management
-3. Transaction Management
+# Admin Credentials
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=your_secure_admin_password
 
-Follow the on-screen prompts to navigate through the application.
+# JWT Configuration
+JWT_SECRET=your-very-long-and-secure-jwt-secret-key-here
 
-## Sample Accounts
+# Supabase Configuration (if using)
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+```
 
-The database script creates the following sample accounts:
+### 4. Start the Backend
 
-- Savings Account: 1000001
-- Checking Account: 1000002
-- Savings Account: 1000003
+```bash
+# Navigate to the backend directory
+cd backend
+
+# Run with Maven
+mvn spring-boot:run
+```
+
+The Spring Boot application will start on `http://localhost:8080`
+
+### 5. Start the Frontend
+
+```bash
+# In a new terminal, navigate to the frontend directory
+cd frontend
+
+# Install dependencies
+npm install
+
+# Start the development server
+npm start
+```
+
+The React application will start on `http://localhost:3000`
+
+## Database Schema
+
+The application automatically creates the following tables:
+
+### Customers
+- `customer_id` (Primary Key)
+- `first_name`, `last_name`
+- `email`, `phone` (unique)
+- `address`, `date_of_birth`
+- `is_active`, `created_at`
+
+### Accounts
+- `account_id` (Primary Key)
+- `customer_id` (Foreign Key)
+- `account_number` (unique, 10 digits)
+- `account_type` (SAVINGS, CHECKING, FIXED_DEPOSIT)
+- `balance`, `interest_rate`
+- `status`, `created_at`
+
+### Transactions
+- `transaction_id` (Primary Key)
+- `account_id` (Foreign Key)
+- `transaction_type` (DEPOSIT, WITHDRAWAL, TRANSFER, etc.)
+- `amount`, `description`
+- `reference_number`, `status`
+- `transaction_date`
+
+### Users & Roles
+- `user_id`, `username`, `password`
+- `email`, `roles` (many-to-many)
+- Role-based access control
+
+## API Endpoints
+
+### Authentication
+- `POST /api/auth/login` - User login
+- `POST /api/auth/register` - User registration
+
+### Dashboard
+- `GET /api/dashboard/stats` - Get dashboard statistics
+
+### Customers
+- `GET /api/customers` - Get all customers
+- `GET /api/customers/{id}` - Get customer by ID
+- `POST /api/customers` - Create new customer
+- `PUT /api/customers/{id}` - Update customer
+- `DELETE /api/customers/{id}` - Delete customer
+- `GET /api/customers/search?query={name}` - Search customers
+
+### Accounts
+- `GET /api/accounts` - Get all accounts
+- `GET /api/accounts/{id}` - Get account by ID
+- `POST /api/accounts` - Create new account
+- `PUT /api/accounts/{id}` - Update account
+- `DELETE /api/accounts/{id}` - Delete account
+
+### Transactions
+- `GET /api/transactions` - Get all transactions
+- `GET /api/transactions/{id}` - Get transaction by ID
+- `POST /api/transactions` - Create new transaction
+- `DELETE /api/transactions/{id}` - Delete transaction
+
+## Frontend Features
+
+- **Responsive Dashboard** with key metrics
+- **Customer Management** with search and filtering
+- **Account Operations** with real-time updates
+- **Transaction Processing** with validation
+- **Modern UI Components** using React Bootstrap
+- **Form Validation** with React Hook Form
+- **Toast Notifications** for user feedback
+
+## Security Features
+
+- **JWT Authentication** for secure API access
+- **Password Encryption** using BCrypt
+- **CORS Configuration** for cross-origin requests
+- **Input Validation** with Bean Validation
+- **Role-based Access Control** (RBAC)
+- **Environment Variables** for sensitive configuration
+
+## Development
+
+### Backend Development
+
+```bash
+# Run tests
+mvn test
+
+# Build JAR file
+mvn clean package
+
+# Run with specific profile
+mvn spring-boot:run -Dspring.profiles.active=dev
+```
+
+### Frontend Development
+
+```bash
+# Install new dependencies
+npm install 
+
+# Run start the development
+npm start
+```
+
+BankManagementSystem/
+├── backend/
+│   ├── src/main/java/com/bankmanagement/
+│   │   ├── controller/     # REST Controllers
+│   │   ├── service/        # Business Logic
+│   │   ├── repository/     # Data Access Layer
+│   │   ├── model/          # Entity Models
+│   │   ├── dto/            # Data Transfer Objects
+│   │   └── config/         # Configuration Classes
+│   ├── src/main/resources/
+│   │   └── application.yml # Application Configuration
+│   └── pom.xml            # Maven Dependencies
+├── frontend/
+│   ├── src/
+│   │   ├── components/     # React Components
+│   │   ├── App.jsx        # Main App Component
+│   │   └── index.js       # Entry Point
+│   └── package.json       # NPM Dependencies
+└── README.md
+```
