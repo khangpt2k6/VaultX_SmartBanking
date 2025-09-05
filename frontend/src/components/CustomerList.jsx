@@ -42,7 +42,7 @@ const CustomerList = () => {
   const fetchCustomers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8080/api/customers');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/customers`);
       setCustomers(response.data);
     } catch (error) {
       console.error('Error fetching customers:', error);
@@ -74,7 +74,7 @@ const CustomerList = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`http://localhost:8080/api/customers/${customerToDelete.customerId}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/customers/${customerToDelete.customerId}`);
       toast.success('Customer deleted successfully');
       fetchCustomers();
     } catch (error) {

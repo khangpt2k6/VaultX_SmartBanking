@@ -20,7 +20,6 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import { API_BASE_URL } from '../config/api';
 
 const AccountList = () => {
   const [accounts, setAccounts] = useState([]);
@@ -52,7 +51,7 @@ const AccountList = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE_URL}/accounts`, {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/accounts`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -110,7 +109,7 @@ const AccountList = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`${API_BASE_URL}/accounts/${accountToDelete.accountId}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/accounts/${accountToDelete.accountId}`);
       toast.success('Account deleted successfully');
       fetchAccounts();
     } catch (error) {

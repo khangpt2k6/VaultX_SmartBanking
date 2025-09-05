@@ -42,7 +42,7 @@ const TransactionList = () => {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8080/api/transactions');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/transactions`);
       setTransactions(response.data);
     } catch (error) {
       console.error('Error fetching transactions:', error);
@@ -74,7 +74,7 @@ const TransactionList = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`http://localhost:8080/api/transactions/${transactionToDelete.transactionId}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/transactions/${transactionToDelete.transactionId}`);
       toast.success('Transaction deleted successfully');
       fetchTransactions();
     } catch (error) {

@@ -16,7 +16,6 @@ import {
 } from 'react-bootstrap-icons';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { API_BASE_URL } from '../config/api';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -44,7 +43,7 @@ const Dashboard = () => {
   const fetchDashboardStats = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE_URL}/dashboard/stats`, {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/dashboard/stats`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

@@ -30,7 +30,7 @@ const AccountForm = () => {
 
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/customers');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/customers`);
       setCustomers(response.data);
     } catch (error) {
       console.error('Error fetching customers:', error);
@@ -75,10 +75,10 @@ const AccountForm = () => {
       console.log('📤 Sending account data:', accountData);
 
       if (isEdit) {
-        await axios.put(`http://localhost:8080/api/accounts/${id}`, accountData);
+        await axios.put(`${import.meta.env.VITE_API_URL}/accounts/${id}`, accountData);
         toast.success('Account updated successfully');
       } else {
-        await axios.post('http://localhost:8080/api/accounts', accountData);
+        await axios.post(`${import.meta.env.VITE_API_URL}/accounts`, accountData);
         toast.success('Account created successfully');
       }
       navigate('/accounts');
