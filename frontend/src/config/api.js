@@ -1,11 +1,11 @@
 // API Configuration for different environments
 const getApiUrl = () => {
-  // Check if we're in production (Create React App uses process.env)
-  const isProduction = process.env.NODE_ENV === 'production';
+  // Check if we're in production (Vite uses import.meta.env)
+  const isProduction = import.meta.env.PROD || import.meta.env.MODE === 'production';
   
   if (isProduction) {
     // Production API URL
-    return process.env.REACT_APP_API_URL || 'https://vaultx-banking-api.onrender.com/api';
+    return import.meta.env.VITE_API_URL || 'https://vaultx-banking-api.onrender.com/api';
   } else {
     // Development API URL
     return 'http://localhost:8080/api';
