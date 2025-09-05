@@ -54,10 +54,10 @@ const CustomerForm = () => {
 
     try {
       if (isEdit) {
-        await axios.put(`${import.meta.env.VITE_API_URL}/customers/${id}`, formData);
+        await axios.put(`${import.meta.env.VITE_API_URL}/api/customers/${id}`, formData);
         toast.success('Customer updated successfully');
       } else {
-        await axios.post(`${import.meta.env.VITE_API_URL}/customers`, formData);
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/customers`, formData);
         toast.success('Customer created successfully');
       }
       navigate('/customers');

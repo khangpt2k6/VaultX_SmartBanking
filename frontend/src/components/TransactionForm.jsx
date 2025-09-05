@@ -29,7 +29,7 @@ const TransactionForm = () => {
 
   const fetchAccounts = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/accounts`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/accounts`);
       setAccounts(response.data);
     } catch (error) {
       console.error('Error fetching accounts:', error);
@@ -77,10 +77,10 @@ const TransactionForm = () => {
 
     try {
       if (isEdit) {
-        await axios.put(`${import.meta.env.VITE_API_URL}/transactions/${id}`, formData);
+        await axios.put(`${import.meta.env.VITE_API_URL}/api/transactions/${id}`, formData);
         toast.success('Transaction updated successfully');
       } else {
-        await axios.post(`${import.meta.env.VITE_API_URL}/transactions`, formData);
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/transactions`, formData);
         toast.success('Transaction created successfully');
       }
       navigate('/transactions');

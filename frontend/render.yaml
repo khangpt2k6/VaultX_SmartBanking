@@ -6,7 +6,7 @@ services:
     staticPublishPath: ./frontend/dist
     envVars:
       - key: VITE_API_URL
-        value: https://vaultx-backend-uj5e.onrender.com/api
+        value: https://vaultx-backend-uj5e.onrender.com
     headers:
       - path: /*
         name: X-Frame-Options

@@ -43,7 +43,7 @@ const Dashboard = () => {
   const fetchDashboardStats = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/dashboard/stats`, {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/dashboard/stats`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

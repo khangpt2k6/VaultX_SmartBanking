@@ -51,7 +51,7 @@ const AccountList = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/accounts`, {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/accounts`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -109,7 +109,7 @@ const AccountList = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/accounts/${accountToDelete.accountId}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/accounts/${accountToDelete.accountId}`);
       toast.success('Account deleted successfully');
       fetchAccounts();
     } catch (error) {
