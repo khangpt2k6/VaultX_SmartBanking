@@ -1,10 +1,12 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #f8f9fa;
+  min-height: 100vh;
 }
 
 code {
@@ -12,10 +14,20 @@ code {
     monospace;
 }
 
-/* Custom styles for the Bank Management System */
+/* Custom styles for VaultX */
 .App {
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background: transparent;
+}
+
+/* VaultX Brand Colors */
+:root {
+  --vaultx-primary: #0d6efd;
+  --vaultx-secondary: #6c757d;
+  --vaultx-success: #198754;
+  --vaultx-warning: #ffc107;
+  --vaultx-danger: #dc3545;
+  --vaultx-info: #0dcaf0;
 }
 
 /* Loading spinner styles */
@@ -28,26 +40,14 @@ code {
 
 /* Custom button styles */
 .btn-custom {
-  border-radius: 8px;
+  border-radius: 6px;
   font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.btn-custom:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 /* Card styles */
 .card-custom {
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  transition: all 0.3s ease;
-}
-
-.card-custom:hover {
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 /* Table styles */
@@ -71,22 +71,92 @@ code {
 
 /* Navigation styles */
 .navbar-custom {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 /* Dashboard card styles */
 .dashboard-card {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  color: white;
-  border: none;
-  border-radius: 15px;
-  transition: all 0.3s ease;
+  border-radius: 8px;
 }
 
-.dashboard-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+/* VaultX Modern Enhancements */
+.glass-effect {
+  border-radius: 8px;
+}
+
+.gradient-text {
+  color: var(--vaultx-primary);
+}
+
+.shadow-vaultx {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.hover-lift {
+  transition: all 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Modern Card Styles */
+.card-modern {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Button Enhancements */
+.btn-vaultx {
+  border-radius: 6px;
+  font-weight: 500;
+  padding: 8px 16px;
+}
+
+/* Animation Classes */
+.fade-in-up {
+  opacity: 1;
+}
+
+/* Sidebar styles */
+.sidebar {
+  transition: all 0.3s ease;
+  top: 80px !important; /* Always start below navbar */
+  background: #f8f9fa;
+}
+
+.sidebar.collapsed {
+  width: 60px !important;
+}
+
+.sidebar.collapsed .card-body {
+  padding: 1rem;
+  min-height: 200px;
+}
+
+.sidebar.collapsed .btn {
+  padding: 0.75rem;
+  justify-content: center !important;
+  margin-bottom: 1rem;
+}
+
+/* Ensure sidebar takes full height */
+.sidebar .card {
+  height: calc(100vh - 100px);
+}
+
+.sidebar .card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  background: #ffffff;
+}
+
+.sidebar-content {
+  transition: margin-left 0.3s ease;
+  margin-top: 0 !important; /* Remove top margin since sidebar is positioned correctly */
 }
 
 /* Responsive adjustments */
@@ -97,5 +167,61 @@ code {
   
   .table-responsive {
     font-size: 0.875rem;
+  }
+  
+  .display-5 {
+    font-size: 2rem;
+  }
+  
+  /* Hide sidebar on mobile */
+  .sidebar {
+    transform: translateX(-100%);
+    width: 250px !important;
+    top: 80px !important; /* Always start below navbar */
+  }
+  
+  .sidebar-content {
+    margin-left: 0 !important;
+  }
+  
+  /* Show sidebar when toggled */
+  .sidebar.show {
+    transform: translateX(0);
+  }
+  
+  /* Override collapsed state on mobile */
+  .sidebar.collapsed {
+    width: 250px !important;
+  }
+  
+  /* Stats cards stack on mobile */
+  .stats-row .col-lg-3 {
+    margin-bottom: 1rem;
+  }
+  
+  /* Activity cards stack on mobile */
+  .activity-row .col-lg-6 {
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .display-5 {
+    font-size: 1.5rem;
+  }
+  
+  .sidebar {
+    width: 100%;
+  }
+  
+  /* Make cards more compact on small screens */
+  .card-body {
+    padding: 1rem;
+  }
+  
+  /* Adjust button sizes */
+  .btn {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
   }
 }

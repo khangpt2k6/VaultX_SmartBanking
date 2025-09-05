@@ -9,8 +9,8 @@ const TransactionForm = () => {
     transactionType: 'DEPOSIT',
     amount: 0,
     accountId: '',
-    description: '',
-    status: 'PENDING'
+    destinationAccountId: '',
+    description: ''
   });
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -56,10 +56,19 @@ const TransactionForm = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => {
+      const newFormData = {
+        ...prev,
+        [name]: value
+      };
+      
+      // Clear destination account if transaction type is not TRANSFER
+      if (name === 'transactionType' && value !== 'TRANSFER') {
+        newFormData.destinationAccountId = '';
+      }
+      
+      return newFormData;
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -153,20 +162,28 @@ const TransactionForm = () => {
                     </Form.Select>
                   </Form.Group>
                 </div>
-                <div className="col-md-6">
-                  <Form.Group className="mb-3">
-                    <Form.Label>Status</Form.Label>
-                    <Form.Select
-                      name="status"
-                      value={formData.status}
-                      onChange={handleChange}
-                    >
-                      <option value="PENDING">Pending</option>
-                      <option value="COMPLETED">Completed</option>
-                      <option value="FAILED">Failed</option>
-                    </Form.Select>
-                  </Form.Group>
-                </div>
+                {formData.transactionType === 'TRANSFER' && (
+                  <div className="col-md-6">
+                    <Form.Group className="mb-3">
+                      <Form.Label>Destination Account *</Form.Label>
+                      <Form.Select
+                        name="destinationAccountId"
+                        value={formData.destinationAccountId}
+                        onChange={handleChange}
+                        required={formData.transactionType === 'TRANSFER'}
+                      >
+                        <option value="">Select destination account</option>
+                        {accounts
+                          .filter(account => account.accountId !== parseInt(formData.accountId))
+                          .map(account => (
+                            <option key={account.accountId} value={account.accountId}>
+                              {account.accountNumber} - {account.customerName}
+                            </option>
+                          ))}
+                      </Form.Select>
+                    </Form.Group>
+                  </div>
+                )}
               </div>
 
               <Form.Group className="mb-3">

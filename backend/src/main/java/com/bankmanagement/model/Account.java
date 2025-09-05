@@ -25,7 +25,7 @@ public class Account {
     private Long customerId;
     
     @NotNull(message = "Account number is required")
-    @Pattern(regexp = "^[0-9]{10}$", message = "Account number must be 10 digits")
+    @Pattern(regexp = "^[0-9]{8,12}$", message = "Account number must be 8-12 digits")
     @Column(name = "account_number", nullable = false, unique = true)
     private String accountNumber;
     
@@ -34,15 +34,13 @@ public class Account {
     @Column(name = "account_type", nullable = false)
     private AccountType accountType;
     
-    @NotNull(message = "Balance is required")
     @DecimalMin(value = "0.0", message = "Balance cannot be negative")
     @Column(name = "balance", nullable = false, precision = 19, scale = 2)
-    private BigDecimal balance;
+    private BigDecimal balance = BigDecimal.ZERO;
     
-    @NotNull(message = "Interest rate is required")
     @DecimalMin(value = "0.0", message = "Interest rate cannot be negative")
     @Column(name = "interest_rate", nullable = false, precision = 5, scale = 4)
-    private BigDecimal interestRate;
+    private BigDecimal interestRate = BigDecimal.ZERO;
     
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)

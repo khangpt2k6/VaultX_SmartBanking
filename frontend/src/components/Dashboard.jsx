@@ -1,16 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, Container, Badge } from 'react-bootstrap';
-import { 
-  PeopleFill, 
-  Bank2, 
-  CashStack, 
+import { Card, Row, Col, Container, Badge, Button, Alert } from 'react-bootstrap';
+import {
+  PeopleFill,
+  Bank2,
+  CashStack,
   GraphUp,
   PersonCheck,
-  ExclamationTriangle
+  ExclamationTriangle,
+  Shield,
+  ArrowRight,
+  Activity,
+  Database,
+  Lock,
+  Clock
 } from 'react-bootstrap-icons';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalCustomers: 0,
     activeCustomers: 0,
@@ -19,17 +28,35 @@ const Dashboard = () => {
     totalTransactions: 0,
     totalBalance: 0
   });
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
+    // Check authentication status
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+    setIsAuthenticated(true);
     fetchDashboardStats();
-  }, []);
+  }, [navigate]);
 
   const fetchDashboardStats = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/dashboard/stats');
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_BASE_URL}/dashboard/stats`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       setStats(response.data);
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        navigate('/login');
+        return;
+      }
       // Set default values if API fails
       setStats({
         totalCustomers: 0,
@@ -53,161 +80,184 @@ const Dashboard = () => {
     return new Intl.NumberFormat('en-US').format(num);
   };
 
+  // Show loading or redirect if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <Container fluid className="px-4">
+        <div className="text-center mt-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-3">Redirecting to login...</p>
+        </div>
+      </Container>
+    );
+  }
+
   return (
-    <Container fluid>
-      <h1 className="mb-4">Dashboard</h1>
+    <Container fluid className="px-4">
+          {/* Header Section */}
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h1 className="h3 fw-bold mb-1 text-dark">
+                Welcome to VaultX
+              </h1>
+              <p className="text-muted small">Your secure financial management platform</p>
+            </div>
+            <div className="d-flex align-items-center">
+              <Shield size={20} className="text-success me-2" />
+              <Badge bg="success" className="fs-6">System Online</Badge>
+            </div>
+          </div>
       
-      <Row className="mb-4">
-        <Col>
-          <Card className="text-center h-100">
-            <Card.Body>
-              <PeopleFill size={48} className="text-primary mb-3" />
-              <Card.Title>Total Customers</Card.Title>
-              <Card.Text className="h2 text-primary">
-                {formatNumber(stats.totalCustomers)}
-              </Card.Text>
-              <Badge bg="success" className="mt-2">
-                {stats.activeCustomers} Active
-              </Badge>
+      {/* Stats Cards */}
+      <Row className="mb-3 g-2 stats-row">
+        <Col xl={3} lg={6} md={6} sm={12}>
+          <Card className="h-100 border shadow-sm">
+            <Card.Body className="text-center p-3">
+              <div className="d-flex justify-content-between align-items-start mb-2">
+                <PeopleFill size={28} className="text-primary" />
+                <Badge bg="primary" className="px-2 py-1 small">
+                  {stats.activeCustomers} Active
+                </Badge>
+              </div>
+              <h4 className="fw-bold mb-1 text-dark">{formatNumber(stats.totalCustomers)}</h4>
+              <p className="mb-0 text-muted small">Total Customers</p>
             </Card.Body>
           </Card>
         </Col>
         
-        <Col>
-          <Card className="text-center h-100">
-            <Card.Body>
-              <Bank2 size={48} className="text-success mb-3" />
-              <Card.Title>Total Accounts</Card.Title>
-              <Card.Text className="h2 text-success">
-                {formatNumber(stats.totalAccounts)}
-              </Card.Text>
-              <Badge bg="success" className="mt-2">
-                {stats.activeAccounts} Active
-              </Badge>
+        <Col xl={3} lg={6} md={6} sm={12}>
+          <Card className="h-100 border shadow-sm">
+            <Card.Body className="text-center p-3">
+              <div className="d-flex justify-content-between align-items-start mb-2">
+                <Bank2 size={28} className="text-success" />
+                <Badge bg="success" className="px-2 py-1 small">
+                  {stats.activeAccounts} Active
+                </Badge>
+              </div>
+              <h4 className="fw-bold mb-1 text-dark">{formatNumber(stats.totalAccounts)}</h4>
+              <p className="mb-0 text-muted small">Total Accounts</p>
             </Card.Body>
           </Card>
         </Col>
         
-        <Col>
-          <Card className="text-center h-100">
-            <Card.Body>
-              <CashStack size={48} className="text-info mb-3" />
-              <Card.Title>Total Balance</Card.Title>
-              <Card.Text className="h2 text-info">
-                {formatCurrency(stats.totalBalance)}
-              </Card.Text>
-              <Badge bg="info" className="mt-2">
-                Across All Accounts
-              </Badge>
+        <Col xl={3} lg={6} md={6} sm={12}>
+          <Card className="h-100 border shadow-sm">
+            <Card.Body className="text-center p-3">
+              <div className="d-flex justify-content-between align-items-start mb-2">
+                <CashStack size={28} className="text-info" />
+                <Badge bg="info" className="px-2 py-1 small">
+                  Total Assets
+                </Badge>
+              </div>
+              <h4 className="fw-bold mb-1 text-dark">{formatCurrency(stats.totalBalance)}</h4>
+              <p className="mb-0 text-muted small">Total Balance</p>
             </Card.Body>
           </Card>
         </Col>
         
-        <Col>
-          <Card className="text-center h-100">
-            <Card.Body>
-              <GraphUp size={48} className="text-warning mb-3" />
-              <Card.Title>Total Transactions</Card.Title>
-              <Card.Text className="h2 text-warning">
-                {formatNumber(stats.totalTransactions)}
-              </Card.Text>
-              <Badge bg="warning" className="mt-2">
-                This Month
-              </Badge>
+        <Col xl={3} lg={6} md={6} sm={12}>
+          <Card className="h-100 border shadow-sm">
+            <Card.Body className="text-center p-3">
+              <div className="d-flex justify-content-between align-items-start mb-2">
+                <GraphUp size={28} className="text-warning" />
+                <Badge bg="warning" className="px-2 py-1 small">
+                  This Month
+                </Badge>
+              </div>
+              <h4 className="fw-bold mb-1 text-dark">{formatNumber(stats.totalTransactions)}</h4>
+              <p className="mb-0 text-muted small">Transactions</p>
             </Card.Body>
           </Card>
         </Col>
       </Row>
 
-      <Row className="mb-4">
-        <Col md={6}>
-          <Card>
-            <Card.Header>
-              <h5 className="mb-0">
-                <PersonCheck className="me-2" />
-                Recent Activity
-              </h5>
+      {/* Activity and Status Section */}
+      <Row className="mb-3 g-2 activity-row">
+        <Col xl={6} lg={12}>
+          <Card className="h-100 border-0 shadow">
+            <Card.Header className="bg-primary text-white border-0 py-2">
+              <h6 className="mb-0 d-flex align-items-center">
+                <Activity className="me-2" size={16} />
+                System Activity
+              </h6>
             </Card.Header>
-            <Card.Body>
-              <div className="d-flex justify-content-between align-items-center mb-2">
-                <span>Total Customers</span>
-                <Badge bg="success">{formatNumber(stats.totalCustomers)}</Badge>
+            <Card.Body className="p-3">
+              <div className="d-flex justify-content-between align-items-center mb-2 p-2 rounded" style={{ backgroundColor: '#f8f9fa' }}>
+                <div className="d-flex align-items-center">
+                  <PeopleFill className="text-primary me-2" size={18} />
+                  <span className="fw-semibold small">Total Customers</span>
+                </div>
+                <Badge bg="primary" className="small px-2 py-1">{formatNumber(stats.totalCustomers)}</Badge>
               </div>
-              <div className="d-flex justify-content-between align-items-center mb-2">
-                <span>Total Accounts</span>
-                <Badge bg="info">{formatNumber(stats.totalAccounts)}</Badge>
+              <div className="d-flex justify-content-between align-items-center mb-2 p-2 rounded" style={{ backgroundColor: '#f8f9fa' }}>
+                <div className="d-flex align-items-center">
+                  <Bank2 className="text-success me-2" size={18} />
+                  <span className="fw-semibold small">Total Accounts</span>
+                </div>
+                <Badge bg="success" className="small px-2 py-1">{formatNumber(stats.totalAccounts)}</Badge>
               </div>
-              <div className="d-flex justify-content-between align-items-center mb-2">
-                <span>Monthly Transactions</span>
-                <Badge bg="primary">{formatNumber(stats.monthlyTransactions || 0)}</Badge>
+              <div className="d-flex justify-content-between align-items-center mb-2 p-2 rounded" style={{ backgroundColor: '#f8f9fa' }}>
+                <div className="d-flex align-items-center">
+                  <GraphUp className="text-info me-2" size={18} />
+                  <span className="fw-semibold small">Monthly Transactions</span>
+                </div>
+                <Badge bg="info" className="small px-2 py-1">{formatNumber(stats.monthlyTransactions || 0)}</Badge>
               </div>
-              <div className="d-flex justify-content-between align-items-center">
-                <span>System Status</span>
-                <Badge bg="success">Online</Badge>
+              <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{ backgroundColor: '#f8f9fa' }}>
+                <div className="d-flex align-items-center">
+                  <Shield className="text-success me-2" size={18} />
+                  <span className="fw-semibold small">System Status</span>
+                </div>
+                <Badge bg="success" className="small px-2 py-1">Online</Badge>
               </div>
             </Card.Body>
           </Card>
         </Col>
         
-        <Col md={6}>
-          <Card>
-            <Card.Header>
-              <h5 className="mb-0">
-                <ExclamationTriangle className="me-2" />
-                System Status
-              </h5>
+        <Col xl={6} lg={12}>
+          <Card className="h-100 border-0 shadow">
+            <Card.Header className="bg-success text-white border-0 py-2">
+              <h6 className="mb-0 d-flex align-items-center">
+                <Database className="me-2" size={16} />
+                System Health
+              </h6>
             </Card.Header>
-            <Card.Body>
-              <div className="d-flex justify-content-between align-items-center mb-2">
-                <span>Database</span>
-                <Badge bg="success">Online</Badge>
+            <Card.Body className="p-3">
+              <div className="d-flex justify-content-between align-items-center mb-2 p-2 rounded" style={{ backgroundColor: '#f8f9fa' }}>
+                <div className="d-flex align-items-center">
+                  <Database className="text-success me-2" size={18} />
+                  <span className="fw-semibold small">Database</span>
+                </div>
+                <Badge bg="success" className="small px-2 py-1">Online</Badge>
               </div>
-              <div className="d-flex justify-content-between align-items-center mb-2">
-                <span>API Services</span>
-                <Badge bg="success">Running</Badge>
+              <div className="d-flex justify-content-between align-items-center mb-2 p-2 rounded" style={{ backgroundColor: '#f8f9fa' }}>
+                <div className="d-flex align-items-center">
+                  <Activity className="text-success me-2" size={18} />
+                  <span className="fw-semibold small">API Services</span>
+                </div>
+                <Badge bg="success" className="small px-2 py-1">Running</Badge>
               </div>
-              <div className="d-flex justify-content-between align-items-center mb-2">
-                <span>Security</span>
-                <Badge bg="success">Active</Badge>
+              <div className="d-flex justify-content-between align-items-center mb-2 p-2 rounded" style={{ backgroundColor: '#f8f9fa' }}>
+                <div className="d-flex align-items-center">
+                  <Lock className="text-success me-2" size={18} />
+                  <span className="fw-semibold small">Security</span>
+                </div>
+                <Badge bg="success" className="small px-2 py-1">Active</Badge>
               </div>
-              <div className="d-flex justify-content-between align-items-center">
-                <span>Last Backup</span>
-                <Badge bg="info">2 hours ago</Badge>
+              <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{ backgroundColor: '#f8f9fa' }}>
+                <div className="d-flex align-items-center">
+                  <Clock className="text-info me-2" size={18} />
+                  <span className="fw-semibold small">Last Backup</span>
+                </div>
+                <Badge bg="info" className="small px-2 py-1">2 hours ago</Badge>
               </div>
             </Card.Body>
           </Card>
         </Col>
       </Row>
 
-      <Row>
-        <Col>
-          <Card>
-            <Card.Header>
-              <h5 className="mb-0">Quick Actions</h5>
-            </Card.Header>
-            <Card.Body>
-              <div className="d-grid gap-2 d-md-flex">
-                <button className="btn btn-primary me-md-2">
-                  <PeopleFill className="me-2" />
-                  Add New Customer
-                </button>
-                <button className="btn btn-success me-md-2">
-                  <Bank2 className="me-2" />
-                  Open New Account
-                </button>
-                <button className="btn btn-info me-md-2">
-                  <CashStack className="me-2" />
-                  Process Transaction
-                </button>
-                <button className="btn btn-warning">
-                  <GraphUp className="me-2" />
-                  Generate Report
-                </button>
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
     </Container>
   );
 };

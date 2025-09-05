@@ -1,225 +1,179 @@
-# Bank Management System
+# VaultX Banking System
 
-A modern, full-stack bank management system built with **Spring Boot** backend and **React** frontend, using **PostgreSQL** as the database.
+A modern, secure banking management system built with **Spring Boot** backend and **React** frontend, deployed on **Render**.
 
-## Features
+## 🚀 Live Demo
 
-- **Customer Management**: Add, edit, delete, and search customers
-- **Account Management**: Create and manage different types of accounts (Savings, Checking, Fixed Deposit)
-- **Transaction Processing**: Handle deposits, withdrawals, transfers, and interest credits
-- **User Authentication**: Secure login and registration system
-- **Role-based Access Control**: Different permissions for different user roles
-- **Modern UI**: Responsive design with Bootstrap and React
-- **RESTful API**: Clean, well-documented API endpoints
-- **Real-time Database**: Powered by PostgreSQL
+- **Frontend**: https://vaultx-banking-frontend.onrender.com
+- **Backend API**: https://vaultx-banking-api.onrender.com/api
 
-## Architecture
+## ✨ Features
+
+- **🔐 Secure Authentication** - JWT-based authentication with role-based access
+- **👥 Customer Management** - Add, edit, delete, and search customers
+- **💳 Account Management** - Create and manage different account types (Savings, Checking, Fixed Deposit)
+- **💰 Transaction Processing** - Handle deposits, withdrawals, transfers, and interest credits
+- **📊 Dashboard** - Real-time statistics and system health monitoring
+- **📱 Responsive Design** - Modern UI that works on all devices
+- **🛡️ Security First** - Protected routes, secure API calls, and data encryption
+
+## 🏗️ Architecture
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   React Frontend│    │ Spring Boot API │    │  Database       │
-│                 │◄──►│                 │◄──►│                 │
-│   - Dashboard   │    │   - Controllers │    │   - PostgreSQL  │
-│   - Forms       │    │   - Services    │    │   - Real-time   │
-│   - Tables      │    │   - Repositories│    │   - Auth        │
+│   React Frontend│    │ Spring Boot API │    │  PostgreSQL     │
+│   (Render)      │◄──►│   (Render)      │◄──►│   (Render)      │
+│                 │    │                 │    │                 │
+│   - Dashboard   │    │   - Controllers │    │   - Managed DB  │
+│   - Forms       │    │   - Services    │    │   - Auto Backup │
+│   - Tables      │    │   - Repositories│    │   - SSL Enabled │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
-## Quick Start
+## 🚀 Quick Deploy to Render
 
 ### Prerequisites
+- GitHub account
+- Render account (free at [render.com](https://render.com))
 
-- **Java 17** or higher
-- **Node.js 16** or higher
-- **Maven 3.6** or higher
-- **PostgreSQL** database
 
-### 1. Clone the Repository
+### 2. Deploy Backend
+1. Go to [Render Dashboard](https://dashboard.render.com)
+2. Click "New +" → "Web Service"
+3. Connect your GitHub repository
+4. Configure:
+   - **Name**: `vaultx-banking-api`
+   - **Environment**: `Java`
+   - **Build Command**: `./mvnw clean package -DskipTests`
+   - **Start Command**: `java -jar target/bank-management-system-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod`
+   - **Plan**: `Starter` (Free)
 
+5. Add Environment Variables:
+   ```
+   SPRING_PROFILES_ACTIVE=prod
+   JWT_SECRET=your-super-secure-jwt-secret-key-here
+   ADMIN_USERNAME=admin
+   ADMIN_PASSWORD=your-secure-admin-password
+   FRONTEND_URL=https://vaultx-banking-frontend.onrender.com
+   ```
+
+6. Add Database:
+   - Click "Add Database" → "PostgreSQL"
+   - Name: `vaultx-postgres`
+   - Copy the connection string to `DATABASE_URL` environment variable
+
+7. Deploy!
+
+### 3. Deploy Frontend
+1. Go to [Render Dashboard](https://dashboard.render.com)
+2. Click "New +" → "Static Site"
+3. Connect your GitHub repository
+4. Configure:
+   - **Name**: `vaultx-banking-frontend`
+   - **Build Command**: `npm install && npm run build`
+   - **Publish Directory**: `dist`
+   - **Plan**: `Starter` (Free)
+
+5. Add Environment Variable:
+   ```
+   VITE_API_URL=https://vaultx-banking-api.onrender.com/api
+   ```
+
+6. Deploy!
+
+## 🔧 Local Development
+
+### Prerequisites
+- Java 17+
+- Node.js 16+
+- Maven 3.6+
+
+### Backend
 ```bash
-git clone <repository-url>
-cd BankManagementSystem
-```
-
-### 2. Set Up Database
-
-1. Install PostgreSQL on your system
-2. Create a new database named `bank_management`
-3. Update the database connection details in the environment variables
-
-### 3. Configure Environment Variables
-
-Create a `.env` file in the `backend` directory:
-
-```env
-# Database Configuration
-DATABASE_URL=jdbc:postgresql://localhost:5432/bank_management
-DATABASE_USERNAME=postgres
-DATABASE_PASSWORD=your_database_password
-
-# Admin Credentials
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=your_secure_admin_password
-
-# JWT Configuration
-JWT_SECRET=your-very-long-and-secure-jwt-secret-key-here
-
-# Supabase Configuration (if using)
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
-```
-
-### 4. Start the Backend
-
-```bash
-# Navigate to the backend directory
 cd backend
-
-# Run with Maven
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 
-The Spring Boot application will start on `http://localhost:8080`
-
-### 5. Start the Frontend
-
+### Frontend
 ```bash
-# In a new terminal, navigate to the frontend directory
 cd frontend
-
-# Install dependencies
 npm install
-
-# Start the development server
-npm start
+npm run dev
 ```
 
-The React application will start on `http://localhost:3000`
+## 🛡️ Security Features
 
-## Database Schema
+- **JWT Authentication** - Secure token-based authentication
+- **Protected Routes** - All sensitive pages require authentication
+- **CORS Configuration** - Proper cross-origin request handling
+- **Environment Variables** - Secrets stored securely
+- **HTTPS Everywhere** - All traffic encrypted
+- **Input Validation** - Server-side validation for all inputs
 
-The application automatically creates the following tables:
+## 📊 Technology Stack
 
-### Customers
-- `customer_id` (Primary Key)
-- `first_name`, `last_name`
-- `email`, `phone` (unique)
-- `address`, `date_of_birth`
-- `is_active`, `created_at`
+### Backend
+- **Spring Boot 3.x** - Java framework
+- **Spring Security** - Authentication & authorization
+- **Spring Data JPA** - Database operations
+- **PostgreSQL** - Primary database
+- **JWT** - Token-based authentication
 
-### Accounts
-- `account_id` (Primary Key)
-- `customer_id` (Foreign Key)
-- `account_number` (unique, 10 digits)
-- `account_type` (SAVINGS, CHECKING, FIXED_DEPOSIT)
-- `balance`, `interest_rate`
-- `status`, `created_at`
+### Frontend
+- **React 18** - UI framework
+- **React Router** - Client-side routing
+- **React Bootstrap** - UI components
+- **Axios** - HTTP client
+- **Vite** - Build tool
 
-### Transactions
-- `transaction_id` (Primary Key)
-- `account_id` (Foreign Key)
-- `transaction_type` (DEPOSIT, WITHDRAWAL, TRANSFER, etc.)
-- `amount`, `description`
-- `reference_number`, `status`
-- `transaction_date`
+### Deployment
+- **Render** - Cloud platform
+- **PostgreSQL** - Managed database
+- **Nginx** - Web server (handled by Render)
 
-### Users & Roles
-- `user_id`, `username`, `password`
-- `email`, `roles` (many-to-many)
-- Role-based access control
-
-## API Endpoints
+## 🔄 API Endpoints
 
 ### Authentication
 - `POST /api/auth/login` - User login
 - `POST /api/auth/register` - User registration
 
-### Dashboard
-- `GET /api/dashboard/stats` - Get dashboard statistics
-
 ### Customers
-- `GET /api/customers` - Get all customers
-- `GET /api/customers/{id}` - Get customer by ID
-- `POST /api/customers` - Create new customer
+- `GET /api/customers` - List all customers
+- `POST /api/customers` - Create customer
 - `PUT /api/customers/{id}` - Update customer
 - `DELETE /api/customers/{id}` - Delete customer
-- `GET /api/customers/search?query={name}` - Search customers
 
 ### Accounts
-- `GET /api/accounts` - Get all accounts
-- `GET /api/accounts/{id}` - Get account by ID
-- `POST /api/accounts` - Create new account
+- `GET /api/accounts` - List all accounts
+- `POST /api/accounts` - Create account
 - `PUT /api/accounts/{id}` - Update account
 - `DELETE /api/accounts/{id}` - Delete account
 
 ### Transactions
-- `GET /api/transactions` - Get all transactions
-- `GET /api/transactions/{id}` - Get transaction by ID
-- `POST /api/transactions` - Create new transaction
-- `DELETE /api/transactions/{id}` - Delete transaction
+- `GET /api/transactions` - List all transactions
+- `POST /api/transactions` - Create transaction
 
-## Frontend Features
+### Dashboard
+- `GET /api/dashboard/stats` - Get dashboard statistics
 
-- **Responsive Dashboard** with key metrics
-- **Customer Management** with search and filtering
-- **Account Operations** with real-time updates
-- **Transaction Processing** with validation
-- **Modern UI Components** using React Bootstrap
-- **Form Validation** with React Hook Form
-- **Toast Notifications** for user feedback
+## 🚨 Important Notes
 
-## Security Features
+- **Free Tier Limits**: 750 hours/month per service
+- **Database**: Managed PostgreSQL with automatic backups
+- **SSL**: Free SSL certificates included
+- **Updates**: Automatic deployment on git push
+- **Monitoring**: Built-in health checks and logging
 
-- **JWT Authentication** for secure API access
-- **Password Encryption** using BCrypt
-- **CORS Configuration** for cross-origin requests
-- **Input Validation** with Bean Validation
-- **Role-based Access Control** (RBAC)
-- **Environment Variables** for sensitive configuration
+## 📞 Support
 
-## Development
+- **Documentation**: [RENDER_DEPLOYMENT.md](./RENDER_DEPLOYMENT.md)
+- **Issues**: Create an issue in the repository
+- **Render Support**: [render.com/docs](https://render.com/docs)
 
-### Backend Development
+## 📄 License
 
-```bash
-# Run tests
-mvn test
+This project is licensed under the MIT License.
 
-# Build JAR file
-mvn clean package
+---
 
-# Run with specific profile
-mvn spring-boot:run -Dspring.profiles.active=dev
-```
-
-### Frontend Development
-
-```bash
-# Install new dependencies
-npm install 
-
-# Run start the development
-npm start
-```
-
-BankManagementSystem/
-├── backend/
-│   ├── src/main/java/com/bankmanagement/
-│   │   ├── controller/     # REST Controllers
-│   │   ├── service/        # Business Logic
-│   │   ├── repository/     # Data Access Layer
-│   │   ├── model/          # Entity Models
-│   │   ├── dto/            # Data Transfer Objects
-│   │   └── config/         # Configuration Classes
-│   ├── src/main/resources/
-│   │   └── application.yml # Application Configuration
-│   └── pom.xml            # Maven Dependencies
-├── frontend/
-│   ├── src/
-│   │   ├── components/     # React Components
-│   │   ├── App.jsx        # Main App Component
-│   │   └── index.js       # Entry Point
-│   └── package.json       # NPM Dependencies
-└── README.md
-```
+**Built with ❤️ for secure banking management**

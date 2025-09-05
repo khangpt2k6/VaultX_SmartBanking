@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -25,6 +26,10 @@ public class AccountService {
     }
     
     public Account createAccount(Account account) {
+        // Ensure account is created as ACTIVE by default
+        if (account.getStatus() == null) {
+            account.setStatus(Account.AccountStatus.ACTIVE);
+        }
         return accountRepository.save(account);
     }
     
@@ -60,5 +65,9 @@ public class AccountService {
     public double getTotalBalance() {
         java.math.BigDecimal totalBalance = accountRepository.getTotalBalance();
         return totalBalance != null ? totalBalance.doubleValue() : 0.0;
+    }
+    
+    public List<Map<String, Object>> getAllAccountsAsMap() {
+        return accountRepository.findAllAccountsAsMap();
     }
 }

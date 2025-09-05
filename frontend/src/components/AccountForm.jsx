@@ -71,6 +71,8 @@ const AccountForm = () => {
         interestRate: parseFloat(formData.interestRate),
         customerId: parseInt(formData.customerId)
       };
+      
+      console.log('📤 Sending account data:', accountData);
 
       if (isEdit) {
         await axios.put(`http://localhost:8080/api/accounts/${id}`, accountData);
@@ -132,7 +134,7 @@ const AccountForm = () => {
                     >
                       <option value="SAVINGS">Savings</option>
                       <option value="CHECKING">Checking</option>
-                      <option value="BUSINESS">Business</option>
+                      <option value="FIXED_DEPOSIT">Fixed Deposit</option>
                     </Form.Select>
                   </Form.Group>
                 </div>

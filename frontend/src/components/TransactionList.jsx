@@ -60,6 +60,7 @@ const TransactionList = () => {
       const filtered = transactions.filter(transaction =>
         transaction.transactionType.toLowerCase().includes(searchTerm.toLowerCase()) ||
         transaction.accountNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (transaction.destinationAccountNumber && transaction.destinationAccountNumber.toLowerCase().includes(searchTerm.toLowerCase())) ||
         transaction.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredTransactions(filtered);
@@ -145,7 +146,7 @@ const TransactionList = () => {
             <Search />
           </InputGroup.Text>
           <Form.Control
-            placeholder="Search transactions by type, account, or description..."
+            placeholder="Search transactions by type, account, destination account, or description..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -180,17 +181,30 @@ const TransactionList = () => {
                   </Badge>
                 </td>
                 <td>
-                  <strong className={transaction.transactionType === 'DEPOSIT' ? 'text-success' : 'text-danger'}>
-                    {transaction.transactionType === 'DEPOSIT' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                  <strong className={
+                    transaction.transactionType === 'DEPOSIT' ? 'text-success' : 
+                    transaction.transactionType === 'WITHDRAWAL' ? 'text-danger' : 
+                    'text-info'
+                  }>
+                    {transaction.transactionType === 'DEPOSIT' ? '+' : 
+                     transaction.transactionType === 'WITHDRAWAL' ? '-' : 
+                     '↔'}{formatCurrency(transaction.amount)}
                   </strong>
                 </td>
                 <td>
-                  <strong>{transaction.accountNumber}</strong>
+                  {transaction.transactionType === 'TRANSFER' ? (
+                    <div>
+                      <div><strong>From: {transaction.accountNumber}</strong></div>
+                      <div className="text-muted small">To: {transaction.destinationAccountNumber || 'N/A'}</div>
+                    </div>
+                  ) : (
+                    <strong>{transaction.accountNumber}</strong>
+                  )}
                 </td>
                 <td>{transaction.description}</td>
                 <td>
-                  <Badge bg={getStatusColor(transaction.status)}>
-                    {transaction.status}
+                  <Badge bg="success">
+                    COMPLETED
                   </Badge>
                 </td>
                 <td>{formatDateTime(transaction.createdAt)}</td>

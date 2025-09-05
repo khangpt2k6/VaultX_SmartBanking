@@ -20,6 +20,7 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
 
 const AccountList = () => {
   const [accounts, setAccounts] = useState([]);
@@ -28,12 +29,20 @@ const AccountList = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [accountToDelete, setAccountToDelete] = useState(null);
   const [filteredAccounts, setFilteredAccounts] = useState([]);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Check authentication status
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+    setIsAuthenticated(true);
     fetchAccounts();
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     filterAccounts();
@@ -42,10 +51,35 @@ const AccountList = () => {
   const fetchAccounts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8080/api/accounts');
-      setAccounts(response.data);
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_BASE_URL}/accounts`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      // Handle both array and object responses
+      let accountsData = [];
+      if (Array.isArray(response.data)) {
+        // If response is already an array
+        accountsData = response.data;
+      } else if (response.data && response.data.accounts && Array.isArray(response.data.accounts)) {
+        // If response is an object with accounts array
+        accountsData = response.data.accounts;
+      } else {
+        // Fallback to empty array
+        accountsData = [];
+      }
+      
+      console.log('📤 Received accounts data:', accountsData);
+      setAccounts(accountsData);
     } catch (error) {
       console.error('Error fetching accounts:', error);
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        navigate('/login');
+        return;
+      }
       toast.error('Failed to fetch accounts');
       setAccounts([]);
     } finally {
@@ -54,13 +88,16 @@ const AccountList = () => {
   };
 
   const filterAccounts = () => {
+    // Ensure accounts is always an array
+    const accountsArray = Array.isArray(accounts) ? accounts : [];
+    
     if (!searchTerm.trim()) {
-      setFilteredAccounts(accounts);
+      setFilteredAccounts(accountsArray);
     } else {
-      const filtered = accounts.filter(account =>
-        account.accountNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        account.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        account.accountType.toLowerCase().includes(searchTerm.toLowerCase())
+      const filtered = accountsArray.filter(account =>
+        account.accountNumber && account.accountNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        account.customerName && account.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        account.accountType && account.accountType.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredAccounts(filtered);
     }
@@ -73,7 +110,7 @@ const AccountList = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`http://localhost:8080/api/accounts/${accountToDelete.accountId}`);
+      await axios.delete(`${API_BASE_URL}/accounts/${accountToDelete.accountId}`);
       toast.success('Account deleted successfully');
       fetchAccounts();
     } catch (error) {
@@ -95,6 +132,18 @@ const AccountList = () => {
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString();
   };
+
+  // Show loading or redirect if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="text-center mt-5">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <p className="mt-3">Redirecting to login...</p>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -171,8 +220,8 @@ const AccountList = () => {
                   </strong>
                 </td>
                 <td>
-                  <Badge bg={account.isActive ? 'success' : 'danger'}>
-                    {account.isActive ? 'Active' : 'Inactive'}
+                  <Badge bg={account.status === 'ACTIVE' ? 'success' : 'danger'}>
+                    {account.status === 'ACTIVE' ? 'Active' : 'Inactive'}
                   </Badge>
                 </td>
                 <td>{formatDate(account.createdAt)}</td>

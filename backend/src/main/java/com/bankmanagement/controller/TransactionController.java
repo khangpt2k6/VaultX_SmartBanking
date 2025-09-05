@@ -21,13 +21,36 @@ public class TransactionController {
     @GetMapping
     public ResponseEntity<?> getAllTransactions() {
         try {
-            List<Transaction> transactions = transactionService.getAllTransactions();
+            System.out.println("🔍 Getting all transactions...");
+            System.out.println("🔍 TransactionService: " + (transactionService != null ? "OK" : "NULL"));
+            
+            // Test repository directly
+            System.out.println("🔍 Testing repository...");
+            long count = transactionService.getTotalTransactions();
+            System.out.println("🔍 Total transactions count: " + count);
+            
+            // Use custom query to get transaction data as Map to avoid entity mapping issues
+            List<Map<String, Object>> transactions = transactionService.getAllTransactionsAsMap();
+            System.out.println("✅ Found " + transactions.size() + " transactions using custom query");
+            
+            // Log each transaction
+            for (Map<String, Object> transaction : transactions) {
+                System.out.println("📝 Transaction: " + transaction.get("transactionType") + " - $" + transaction.get("amount") + 
+                                 " - Account: " + transaction.get("accountNumber") + 
+                                 " - Customer: " + transaction.get("customerName") + 
+                                 " - " + transaction.get("description"));
+            }
+            
             return ResponseEntity.ok(transactions);
         } catch (Exception e) {
+            System.err.println("❌ Error getting transactions: " + e.getMessage());
+            System.err.println("❌ Error class: " + e.getClass().getSimpleName());
+            e.printStackTrace();
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
-            response.put("message", e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            response.put("message", "Failed to fetch transactions: " + e.getMessage());
+            response.put("errorType", e.getClass().getSimpleName());
+            return ResponseEntity.status(500).body(response);
         }
     }
 
@@ -75,6 +98,26 @@ public class TransactionController {
             response.put("success", false);
             response.put("message", e.getMessage());
             return ResponseEntity.badRequest().body(response);
+        }
+    }
+    
+    @PostMapping("/recalculate-balances")
+    public ResponseEntity<?> recalculateBalances() {
+        try {
+            System.out.println("🔍 Recalculating all account balances...");
+            transactionService.recalculateAllAccountBalances();
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "All account balances recalculated successfully");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("❌ Error recalculating balances: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Failed to recalculate balances: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
         }
     }
 }

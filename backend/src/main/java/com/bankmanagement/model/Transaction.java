@@ -43,12 +43,11 @@ public class Transaction {
     @Column(name = "destination_account_id")
     private Long destinationAccountId;
     
-    @Column(name = "reference_number", unique = true)
-    private String referenceNumber;
+    // @Enumerated(EnumType.STRING)
+    // @Column(name = "status")
+    // private TransactionStatus status;
     
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private TransactionStatus status = TransactionStatus.COMPLETED;
+    // Removed reference_number column to match database schema
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id", insertable = false, updatable = false)
@@ -59,11 +58,11 @@ public class Transaction {
     private Account destinationAccount;
 
     public enum TransactionType {
-        DEPOSIT, WITHDRAWAL, TRANSFER, INTEREST_CREDIT, FEE_CHARGE
+        DEPOSIT, WITHDRAWAL, TRANSFER, INTEREST_CREDIT
     }
     
     public enum TransactionStatus {
-        PENDING, COMPLETED, FAILED, CANCELLED
+        PENDING, COMPLETED, FAILED
     }
 
     // Default constructor
@@ -78,6 +77,7 @@ public class Transaction {
         this.amount = amount;
         this.description = description;
         this.destinationAccountId = destinationAccountId;
+        // this.status = TransactionStatus.PENDING; // Default to pending
     }
 
     // Getters and Setters
@@ -137,21 +137,15 @@ public class Transaction {
         this.destinationAccountId = destinationAccountId;
     }
 
-    public String getReferenceNumber() {
-        return referenceNumber;
-    }
+    // public TransactionStatus getStatus() {
+    //     return status;
+    // }
 
-    public void setReferenceNumber(String referenceNumber) {
-        this.referenceNumber = referenceNumber;
-    }
+    // public void setStatus(TransactionStatus status) {
+    //     this.status = status;
+    // }
 
-    public TransactionStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(TransactionStatus status) {
-        this.status = status;
-    }
+    // Removed getter/setter methods for reference_number
 
     public Account getAccount() {
         return account;
@@ -179,8 +173,7 @@ public class Transaction {
                 ", transactionDate=" + transactionDate +
                 ", description='" + description + '\'' +
                 ", destinationAccountId=" + destinationAccountId +
-                ", referenceNumber='" + referenceNumber + '\'' +
-                ", status=" + status +
+                // ", status=" + status +
                 '}';
     }
 }
