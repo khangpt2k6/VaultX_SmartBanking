@@ -91,7 +91,7 @@ A modern, secure banking management system built with **Spring Boot** backend an
 ### Backend
 ```bash
 cd backend
-./mvnw spring-boot:run
+./mvn spring-boot:run
 ```
 
 ### Frontend
