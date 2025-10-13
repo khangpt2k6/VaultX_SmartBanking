@@ -37,15 +37,38 @@ spring:
 
 server:
   port: ${PORT:8080}
+  tomcat:
+    threads:
+      max: 500
+      min-spare: 20
+    accept-count: 200
+    max-connections: 16384
 
 logging:
   level:
     com.bankmanagement: INFO
     org.springframework.security: WARN
     org.hibernate.SQL: WARN
+    org.springframework.scheduling: INFO
+    org.springframework.scheduling.concurrent: INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Async configuration for production
+spring:
+  task:
+    execution:
+      pool:
+        core-size: 10
+        max-size: 50
+        queue-capacity: 200
+        keep-alive: 120s
+      thread-name-prefix: "VaultX-Async-"
+    scheduling:
+      pool:
+        size: 5
+      thread-name-prefix: "VaultX-Scheduler-"
 
 # JWT Configuration
 jwt:

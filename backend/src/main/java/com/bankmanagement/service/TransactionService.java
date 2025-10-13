@@ -46,7 +46,8 @@ public class TransactionService {
         System.out.println("🔍 Creating transaction: " + transaction.getTransactionType() + 
                          " - Amount: $" + transaction.getAmount() + 
                          " - Account ID: " + transaction.getAccountId() + 
-                         " - Destination Account ID: " + transaction.getDestinationAccountId());
+                         " - Destination Account ID: " + transaction.getDestinationAccountId() +
+                         " - Thread: " + Thread.currentThread().getName());
         
         try {
             // Validate transaction before processing
@@ -59,10 +60,9 @@ public class TransactionService {
             // transaction.setStatus(Transaction.TransactionStatus.COMPLETED);
             
         } catch (Exception e) {
-            // If any error occurs, mark as FAILED
-            // transaction.setStatus(Transaction.TransactionStatus.FAILED);
             System.err.println("❌ Transaction failed: " + e.getMessage());
             e.printStackTrace();
+            throw e; // Re-throw to maintain transaction rollback
         }
         
         // Save the transaction with determined status

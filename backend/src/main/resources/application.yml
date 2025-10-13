@@ -37,12 +37,35 @@ spring:
 
 server:
   port: 8080
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 10
+    accept-count: 100
+    max-connections: 8192
 
 logging:
   level:
     com.bankmanagement: DEBUG
     org.springframework.security: DEBUG
     org.hibernate.SQL: DEBUG
+    org.springframework.scheduling: DEBUG
+    org.springframework.scheduling.concurrent: DEBUG
+
+# Async configuration
+spring:
+  task:
+    execution:
+      pool:
+        core-size: 5
+        max-size: 20
+        queue-capacity: 100
+        keep-alive: 60s
+      thread-name-prefix: "VaultX-Async-"
+    scheduling:
+      pool:
+        size: 3
+      thread-name-prefix: "VaultX-Scheduler-"
 
 # JWT Configuration
 jwt:
