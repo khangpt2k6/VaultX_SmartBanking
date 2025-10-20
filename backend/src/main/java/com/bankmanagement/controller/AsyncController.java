@@ -24,7 +24,7 @@ public class AsyncController {
     private ScheduledTaskService scheduledTaskService;
 
     @PostMapping("/transaction")
-    public CompletableFuture<ResponseEntity<?>> processTransactionAsync(@RequestBody Transaction transaction) {
+    public CompletableFuture<ResponseEntity<Map<String, Object>>> processTransactionAsync(@RequestBody Transaction transaction) {
         try {
             System.out.println("🔄 Processing transaction asynchronously via API");
             
@@ -53,7 +53,7 @@ public class AsyncController {
     }
 
     @PostMapping("/transactions/batch")
-    public CompletableFuture<ResponseEntity<?>> processBatchTransactionsAsync(@RequestBody List<Transaction> transactions) {
+    public CompletableFuture<ResponseEntity<Map<String, Object>>> processBatchTransactionsAsync(@RequestBody List<Transaction> transactions) {
         try {
             System.out.println("🔄 Processing batch of " + transactions.size() + " transactions asynchronously");
             
@@ -82,7 +82,7 @@ public class AsyncController {
     }
 
     @PostMapping("/balances/recalculate")
-    public CompletableFuture<ResponseEntity<?>> recalculateBalancesAsync() {
+    public CompletableFuture<ResponseEntity<Map<String, Object>>> recalculateBalancesAsync() {
         try {
             System.out.println("🔄 Starting async balance recalculation via API");
             
@@ -110,7 +110,7 @@ public class AsyncController {
     }
 
     @GetMapping("/report")
-    public CompletableFuture<ResponseEntity<?>> generateTransactionReportAsync() {
+    public CompletableFuture<ResponseEntity<Map<String, Object>>> generateTransactionReportAsync() {
         try {
             System.out.println("📊 Generating async transaction report via API");
             
@@ -191,7 +191,7 @@ public class AsyncController {
     }
 
     @PostMapping("/stress-test/{count}")
-    public CompletableFuture<ResponseEntity<?>> stressTest(@PathVariable int count) {
+    public CompletableFuture<ResponseEntity<Map<String, Object>>> stressTest(@PathVariable int count) {
         try {
             if (count > 100) {
                 Map<String, Object> response = new HashMap<>();
