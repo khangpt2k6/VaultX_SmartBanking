@@ -10,14 +10,32 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * REST controller for authentication and registration operations.
+ * Handles user login and registration with customer data validation.
+ */
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*")
 public class AuthController {
 
-    @Autowired
-    private CustomerService customerService;
+    private final CustomerService customerService;
 
+    /**
+     * Constructs AuthController with required service dependency.
+     *
+     * @param customerService service for customer management operations
+     */
+    public AuthController(CustomerService customerService) {
+        this.customerService = customerService;
+    }
+
+    /**
+     * Registers a new customer account.
+     * 
+     * @param userData map containing firstName, lastName, email, phone, address, dateOfBirth
+     * @return ResponseEntity with success status and saved customer data
+     */
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Map<String, String> userData) {
         try {
@@ -49,6 +67,12 @@ public class AuthController {
         }
     }
 
+    /**
+     * Authenticates a customer using email or phone number.
+     * 
+     * @param loginData map containing either email or phone for authentication
+     * @return ResponseEntity with success status and customer data if authenticated
+     */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginData) {
         try {

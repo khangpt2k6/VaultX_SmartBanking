@@ -12,17 +12,35 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * REST controller for asynchronous transaction processing operations.
+ * Provides endpoints for async transactions, batch processing, balance recalculation, and stress testing.
+ */
 @RestController
 @RequestMapping("/api/async")
 @CrossOrigin(origins = "*")
 public class AsyncController {
 
-    @Autowired
-    private AsyncTransactionService asyncTransactionService;
-    
-    @Autowired
-    private ScheduledTaskService scheduledTaskService;
+    private final AsyncTransactionService asyncTransactionService;
+    private final ScheduledTaskService scheduledTaskService;
 
+    /**
+     * Constructs AsyncController with required service dependencies.
+     *
+     * @param asyncTransactionService service for handling async transactions
+     * @param scheduledTaskService service for scheduled task management
+     */
+    public AsyncController(AsyncTransactionService asyncTransactionService, ScheduledTaskService scheduledTaskService) {
+        this.asyncTransactionService = asyncTransactionService;
+        this.scheduledTaskService = scheduledTaskService;
+    }
+
+    /**
+     * Asynchronously processes a single transaction.
+     *
+     * @param transaction the transaction to process
+     * @return CompletableFuture with response containing transaction details and thread name
+     */
     @PostMapping("/transaction")
     public CompletableFuture<ResponseEntity<Map<String, Object>>> processTransactionAsync(@RequestBody Transaction transaction) {
         try {
@@ -52,6 +70,12 @@ public class AsyncController {
         }
     }
 
+    /**
+     * Asynchronously processes a batch of transactions.
+     *
+     * @param transactions list of transactions to process
+     * @return CompletableFuture with response containing processed count and thread name
+     */
     @PostMapping("/transactions/batch")
     public CompletableFuture<ResponseEntity<Map<String, Object>>> processBatchTransactionsAsync(@RequestBody List<Transaction> transactions) {
         try {
@@ -81,6 +105,11 @@ public class AsyncController {
         }
     }
 
+    /**
+     * Asynchronously recalculates all account balances.
+     *
+     * @return CompletableFuture with response containing recalculation result
+     */
     @PostMapping("/balances/recalculate")
     public CompletableFuture<ResponseEntity<Map<String, Object>>> recalculateBalancesAsync() {
         try {
@@ -109,6 +138,11 @@ public class AsyncController {
         }
     }
 
+    /**
+     * Asynchronously generates a transaction report.
+     *
+     * @return CompletableFuture with response containing transaction report data
+     */
     @GetMapping("/report")
     public CompletableFuture<ResponseEntity<Map<String, Object>>> generateTransactionReportAsync() {
         try {
@@ -137,6 +171,11 @@ public class AsyncController {
         }
     }
 
+    /**
+     * Retrieves async processing metrics and statistics.
+     *
+     * @return ResponseEntity with metrics data including processed/failed transactions
+     */
     @GetMapping("/metrics")
     public ResponseEntity<?> getAsyncMetrics() {
         try {
@@ -161,6 +200,11 @@ public class AsyncController {
         }
     }
 
+    /**
+     * Checks the health status of async processing system.
+     *
+     * @return ResponseEntity with health status and success rate metrics
+     */
     @GetMapping("/health")
     public ResponseEntity<?> getAsyncHealth() {
         try {
@@ -190,6 +234,12 @@ public class AsyncController {
         }
     }
 
+    /**
+     * Runs a stress test with the specified number of transactions (max 100).
+     *
+     * @param count number of test transactions to process
+     * @return CompletableFuture with response containing test results
+     */
     @PostMapping("/stress-test/{count}")
     public CompletableFuture<ResponseEntity<Map<String, Object>>> stressTest(@PathVariable int count) {
         try {
