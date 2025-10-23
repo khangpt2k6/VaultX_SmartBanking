@@ -2,14 +2,6 @@
 
 A modern, secure banking management system built with **Spring Boot** backend and **React** frontend, deployed on **Render**.
 
-## Live Demo
-
-**Visit my website through this link**: https://vaultx-bankmanagementsystem.onrender.com
-
-> ⚠️ **Note:** Please wait for both the backend and the frontend to be load
-
-<img width="1911" height="903" alt="image" src="https://github.com/user-attachments/assets/9c02fec0-1914-45c6-9da2-cb855495c3bd" />
-
 ## Features
 
 - **Secure Authentication** - JWT-based authentication with role-based access
