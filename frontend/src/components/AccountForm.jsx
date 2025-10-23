@@ -1,17 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Button, Card, Alert, Spinner } from 'react-bootstrap';
-import { useNavigate, useParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { Spinner, Row, Col, Container } from "react-bootstrap";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+import axios from "axios";
+import {
+  GlassForm,
+  GlassInput,
+  GlassSelect,
+  GlassButton,
+} from "./ui/GlassForm";
 
 const AccountForm = () => {
   const [formData, setFormData] = useState({
-    accountNumber: '',
-    accountType: 'SAVINGS',
+    accountNumber: "",
+    accountType: "SAVINGS",
     balance: 0,
-    customerId: '',
+    customerId: "",
     interestRate: 0.02,
-    status: 'ACTIVE'
+    status: "ACTIVE",
   });
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -30,10 +36,12 @@ const AccountForm = () => {
 
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/customers`);
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/customers`
+      );
       setCustomers(response.data);
     } catch (error) {
-      console.error('Error fetching customers:', error);
+      console.error("Error fetching customers:", error);
       setCustomers([]);
     }
   };
@@ -44,8 +52,8 @@ const AccountForm = () => {
       const response = await axios.get(`/api/accounts/${accountId}`);
       setFormData(response.data);
     } catch (error) {
-      console.error('Error fetching account:', error);
-      toast.error('Failed to fetch account data');
+      console.error("Error fetching account:", error);
+      toast.error("Failed to fetch account data");
     } finally {
       setLoading(false);
     }
@@ -53,9 +61,9 @@ const AccountForm = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -69,22 +77,28 @@ const AccountForm = () => {
         ...formData,
         balance: parseFloat(formData.balance),
         interestRate: parseFloat(formData.interestRate),
-        customerId: parseInt(formData.customerId)
+        customerId: parseInt(formData.customerId),
       };
-      
-      console.log('📤 Sending account data:', accountData);
+
+      console.log("📤 Sending account data:", accountData);
 
       if (isEdit) {
-        await axios.put(`${import.meta.env.VITE_API_URL}/api/accounts/${id}`, accountData);
-        toast.success('Account updated successfully');
+        await axios.put(
+          `${import.meta.env.VITE_API_URL}/api/accounts/${id}`,
+          accountData
+        );
+        toast.success("Account updated successfully");
       } else {
-        await axios.post(`${import.meta.env.VITE_API_URL}/api/accounts`, accountData);
-        toast.success('Account created successfully');
+        await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/accounts`,
+          accountData
+        );
+        toast.success("Account created successfully");
       }
-      navigate('/accounts');
+      navigate("/accounts");
     } catch (error) {
-      console.error('Error saving account:', error);
-      toast.error(`Failed to ${isEdit ? 'update' : 'create'} account`);
+      console.error("Error saving account:", error);
+      toast.error(`Failed to ${isEdit ? "update" : "create"} account`);
     } finally {
       setLoading(false);
     }
@@ -105,7 +119,7 @@ const AccountForm = () => {
       <div className="col-md-8">
         <Card>
           <Card.Header>
-            <h4>{isEdit ? 'Edit Account' : 'Open New Account'}</h4>
+            <h4>{isEdit ? "Edit Account" : "Open New Account"}</h4>
           </Card.Header>
           <Card.Body>
             <Form onSubmit={handleSubmit}>
@@ -152,8 +166,11 @@ const AccountForm = () => {
                       disabled={isEdit}
                     >
                       <option value="">Select a customer</option>
-                      {customers.map(customer => (
-                        <option key={customer.customerId} value={customer.customerId}>
+                      {customers.map((customer) => (
+                        <option
+                          key={customer.customerId}
+                          value={customer.customerId}
+                        >
                           {customer.firstName} {customer.lastName}
                         </option>
                       ))}
@@ -207,26 +224,23 @@ const AccountForm = () => {
                 </div>
               </div>
 
-
               <div className="d-flex gap-2">
-                <Button
-                  type="submit"
-                  variant="primary"
-                  disabled={loading}
-                >
+                <Button type="submit" variant="primary" disabled={loading}>
                   {loading ? (
                     <>
                       <Spinner size="sm" className="me-2" />
-                      {isEdit ? 'Updating...' : 'Creating...'}
+                      {isEdit ? "Updating..." : "Creating..."}
                     </>
+                  ) : isEdit ? (
+                    "Update Account"
                   ) : (
-                    isEdit ? 'Update Account' : 'Create Account'
+                    "Create Account"
                   )}
                 </Button>
                 <Button
                   type="button"
                   variant="secondary"
-                  onClick={() => navigate('/accounts')}
+                  onClick={() => navigate("/accounts")}
                 >
                   Cancel
                 </Button>

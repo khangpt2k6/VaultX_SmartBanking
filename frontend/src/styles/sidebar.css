@@ -1,0 +1,339 @@
+/* ========================================
+   SIDEBAR GLASSMORPHIC STYLES
+   ======================================== */
+
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 98;
+  display: none;
+}
+
+.sidebar-glass {
+  position: fixed;
+  left: 0;
+  top: 70px;
+  width: 280px;
+  height: calc(100vh - 70px);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  z-index: 99;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.sidebar-glass::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  pointer-events: none;
+}
+
+.sidebar-glass.collapsed {
+  width: 80px;
+}
+
+/* Sidebar Header */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.sidebar-header h5 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sidebar-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.sidebar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.sidebar-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+/* Sidebar Body */
+.sidebar-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Scrollbar Styling */
+.sidebar-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  transition: background 0.3s;
+}
+
+.sidebar-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Sidebar Section */
+.sidebar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sidebar-title {
+  font-size: 0.688rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 0 1rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Sidebar Items */
+.sidebar-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sidebar-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left 0.6s;
+}
+
+.sidebar-item:hover::before {
+  left: 100%;
+}
+
+.sidebar-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateX(6px);
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.sidebar-item.trading {
+  background: rgba(25, 135, 84, 0.1);
+  border-color: rgba(25, 135, 84, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.sidebar-item.trading:hover {
+  background: rgba(25, 135, 84, 0.2);
+  border-color: rgba(25, 135, 84, 0.4);
+  box-shadow: 0 4px 20px rgba(25, 135, 84, 0.2);
+}
+
+.sidebar-item svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.sidebar-item span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Collapsed State */
+.sidebar-glass.collapsed .sidebar-item {
+  justify-content: center;
+  padding: 1rem;
+}
+
+.sidebar-glass.collapsed .sidebar-item span {
+  display: none;
+}
+
+.sidebar-glass.collapsed .sidebar-header h5 {
+  display: none;
+}
+
+.sidebar-glass.collapsed .sidebar-title {
+  display: none;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+/* Desktop view - sidebar always visible */
+@media (min-width: 993px) {
+  .sidebar-glass {
+    position: fixed;
+    left: 0;
+    top: 70px;
+    width: 280px;
+    height: calc(100vh - 70px);
+    opacity: 1;
+    visibility: visible;
+    z-index: 99;
+  }
+
+  .sidebar-glass.collapsed {
+    width: 80px;
+  }
+
+  .sidebar-overlay {
+    display: none;
+  }
+}
+
+/* Tablet and mobile view - sidebar hidden by default */
+@media (max-width: 992px) {
+  .sidebar-glass {
+    position: fixed;
+    left: 0;
+    top: 70px;
+    width: 0;
+    height: calc(100vh - 70px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 98;
+    border-right: none;
+  }
+
+  .sidebar-glass.open {
+    width: 280px;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .sidebar-overlay {
+    display: none;
+  }
+
+  .sidebar-glass.open ~ .sidebar-overlay {
+    display: block;
+  }
+}
+
+@media (max-width: 576px) {
+  .sidebar-glass {
+    width: 0;
+    top: 60px;
+  }
+
+  .sidebar-glass.open {
+    width: 100%;
+    height: calc(100vh - 60px);
+  }
+
+  .sidebar-header {
+    padding: 1rem 1rem;
+  }
+
+  .sidebar-header h5 {
+    font-size: 0.95rem;
+  }
+
+  .sidebar-item {
+    padding: 0.875rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .sidebar-body {
+    padding: 1rem 0.5rem;
+    gap: 1.5rem;
+  }
+
+  .sidebar-title {
+    padding: 0 0.875rem;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .sidebar-glass {
+    display: none;
+  }
+}

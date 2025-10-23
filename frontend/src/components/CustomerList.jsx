@@ -1,30 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Table, 
-  Button, 
-  Badge, 
-  InputGroup, 
-  Form, 
+import React, { useState, useEffect } from "react";
+import {
+  Table,
+  InputGroup,
+  Form,
   Modal,
-  Alert,
-  Spinner
-} from 'react-bootstrap';
-import { 
-  Pencil, 
-  Trash, 
-  Eye, 
-  Plus, 
+  Spinner,
+  Container,
+} from "react-bootstrap";
+import {
+  Pencil,
+  Trash,
+  Eye,
+  Plus,
   Search,
-  PersonPlus
-} from 'react-bootstrap-icons';
-import { Link, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import axios from 'axios';
+  PersonPlus,
+} from "react-bootstrap-icons";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { GlassCard, GlassButton } from "./ui/GlassCard";
 
 const CustomerList = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [customerToDelete, setCustomerToDelete] = useState(null);
   const [filteredCustomers, setFilteredCustomers] = useState([]);
@@ -42,11 +41,13 @@ const CustomerList = () => {
   const fetchCustomers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/customers`);
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/customers`
+      );
       setCustomers(response.data);
     } catch (error) {
-      console.error('Error fetching customers:', error);
-      toast.error('Failed to fetch customers');
+      console.error("Error fetching customers:", error);
+      toast.error("Failed to fetch customers");
       setCustomers([]);
     } finally {
       setLoading(false);
@@ -57,11 +58,12 @@ const CustomerList = () => {
     if (!searchTerm.trim()) {
       setFilteredCustomers(customers);
     } else {
-      const filtered = customers.filter(customer =>
-        customer.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.phone.includes(searchTerm)
+      const filtered = customers.filter(
+        (customer) =>
+          customer.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          customer.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          customer.phone.includes(searchTerm)
       );
       setFilteredCustomers(filtered);
     }
@@ -74,12 +76,16 @@ const CustomerList = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/customers/${customerToDelete.customerId}`);
-      toast.success('Customer deleted successfully');
+      await axios.delete(
+        `${import.meta.env.VITE_API_URL}/api/customers/${
+          customerToDelete.customerId
+        }`
+      );
+      toast.success("Customer deleted successfully");
       fetchCustomers();
     } catch (error) {
-      console.error('Error deleting customer:', error);
-      toast.error('Failed to delete customer');
+      console.error("Error deleting customer:", error);
+      toast.error("Failed to delete customer");
     } finally {
       setShowDeleteModal(false);
       setCustomerToDelete(null);
@@ -104,9 +110,9 @@ const CustomerList = () => {
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1>Customers</h1>
-        <Button 
-          as={Link} 
-          to="/customers/new" 
+        <Button
+          as={Link}
+          to="/customers/new"
           variant="primary"
           className="d-flex align-items-center gap-2"
         >
@@ -130,7 +136,7 @@ const CustomerList = () => {
 
       {filteredCustomers.length === 0 ? (
         <Alert variant="info">
-          No customers found. {searchTerm && 'Try adjusting your search terms.'}
+          No customers found. {searchTerm && "Try adjusting your search terms."}
         </Alert>
       ) : (
         <Table striped bordered hover responsive>
@@ -152,15 +158,17 @@ const CustomerList = () => {
               <tr key={customer.customerId}>
                 <td>{customer.customerId}</td>
                 <td>
-                  <strong>{customer.firstName} {customer.lastName}</strong>
+                  <strong>
+                    {customer.firstName} {customer.lastName}
+                  </strong>
                 </td>
                 <td>{customer.email}</td>
                 <td>{customer.phone}</td>
                 <td>{customer.address}</td>
                 <td>{formatDate(customer.dateOfBirth)}</td>
                 <td>
-                  <Badge bg={customer.isActive ? 'success' : 'danger'}>
-                    {customer.isActive ? 'Active' : 'Inactive'}
+                  <Badge bg={customer.isActive ? "success" : "danger"}>
+                    {customer.isActive ? "Active" : "Inactive"}
                   </Badge>
                 </td>
                 <td>{formatDate(customer.createdAt)}</td>
@@ -169,7 +177,9 @@ const CustomerList = () => {
                     <Button
                       variant="outline-primary"
                       size="sm"
-                      onClick={() => navigate(`/customers/edit/${customer.customerId}`)}
+                      onClick={() =>
+                        navigate(`/customers/edit/${customer.customerId}`)
+                      }
                     >
                       <Pencil />
                     </Button>
@@ -194,14 +204,13 @@ const CustomerList = () => {
           <Modal.Title>Confirm Delete</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Are you sure you want to delete customer{' '}
+          Are you sure you want to delete customer{" "}
           <strong>
             {customerToDelete?.firstName} {customerToDelete?.lastName}
-          </strong>?
+          </strong>
+          ?
           <br />
-          <small className="text-muted">
-            This action cannot be undone.
-          </small>
+          <small className="text-muted">This action cannot be undone.</small>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>

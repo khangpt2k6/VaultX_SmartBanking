@@ -1,30 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Table, 
-  Button, 
-  Badge, 
-  InputGroup, 
-  Form, 
+import React, { useState, useEffect } from "react";
+import {
+  Table,
+  InputGroup,
+  Form,
   Modal,
-  Alert,
-  Spinner
-} from 'react-bootstrap';
-import { 
-  Pencil, 
-  Trash, 
-  Eye, 
-  Plus, 
-  Search,
-  Bank2
-} from 'react-bootstrap-icons';
-import { Link, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import axios from 'axios';
+  Spinner,
+  Container,
+} from "react-bootstrap";
+import { Pencil, Trash, Eye, Plus, Search, Bank2 } from "react-bootstrap-icons";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 const AccountList = () => {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [accountToDelete, setAccountToDelete] = useState(null);
   const [filteredAccounts, setFilteredAccounts] = useState([]);
@@ -34,9 +25,9 @@ const AccountList = () => {
 
   useEffect(() => {
     // Check authentication status
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
     setIsAuthenticated(true);
@@ -50,36 +41,43 @@ const AccountList = () => {
   const fetchAccounts = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/accounts`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+      const token = localStorage.getItem("token");
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/accounts`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
-      
+      );
+
       // Handle both array and object responses
       let accountsData = [];
       if (Array.isArray(response.data)) {
         // If response is already an array
         accountsData = response.data;
-      } else if (response.data && response.data.accounts && Array.isArray(response.data.accounts)) {
+      } else if (
+        response.data &&
+        response.data.accounts &&
+        Array.isArray(response.data.accounts)
+      ) {
         // If response is an object with accounts array
         accountsData = response.data.accounts;
       } else {
         // Fallback to empty array
         accountsData = [];
       }
-      
-      console.log('📤 Received accounts data:', accountsData);
+
+      console.log("📤 Received accounts data:", accountsData);
       setAccounts(accountsData);
     } catch (error) {
-      console.error('Error fetching accounts:', error);
+      console.error("Error fetching accounts:", error);
       if (error.response?.status === 401) {
-        localStorage.removeItem('token');
-        navigate('/login');
+        localStorage.removeItem("token");
+        navigate("/login");
         return;
       }
-      toast.error('Failed to fetch accounts');
+      toast.error("Failed to fetch accounts");
       setAccounts([]);
     } finally {
       setLoading(false);
@@ -89,14 +87,24 @@ const AccountList = () => {
   const filterAccounts = () => {
     // Ensure accounts is always an array
     const accountsArray = Array.isArray(accounts) ? accounts : [];
-    
+
     if (!searchTerm.trim()) {
       setFilteredAccounts(accountsArray);
     } else {
-      const filtered = accountsArray.filter(account =>
-        account.accountNumber && account.accountNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        account.customerName && account.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        account.accountType && account.accountType.toLowerCase().includes(searchTerm.toLowerCase())
+      const filtered = accountsArray.filter(
+        (account) =>
+          (account.accountNumber &&
+            account.accountNumber
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase())) ||
+          (account.customerName &&
+            account.customerName
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase())) ||
+          (account.accountType &&
+            account.accountType
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()))
       );
       setFilteredAccounts(filtered);
     }
@@ -109,12 +117,16 @@ const AccountList = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/accounts/${accountToDelete.accountId}`);
-      toast.success('Account deleted successfully');
+      await axios.delete(
+        `${import.meta.env.VITE_API_URL}/api/accounts/${
+          accountToDelete.accountId
+        }`
+      );
+      toast.success("Account deleted successfully");
       fetchAccounts();
     } catch (error) {
-      console.error('Error deleting account:', error);
-      toast.error('Failed to delete account');
+      console.error("Error deleting account:", error);
+      toast.error("Failed to delete account");
     } finally {
       setShowDeleteModal(false);
       setAccountToDelete(null);
@@ -122,9 +134,9 @@ const AccountList = () => {
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(amount);
   };
 
@@ -158,9 +170,9 @@ const AccountList = () => {
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1>Accounts</h1>
-        <Button 
-          as={Link} 
-          to="/accounts/new" 
+        <Button
+          as={Link}
+          to="/accounts/new"
           variant="primary"
           className="d-flex align-items-center gap-2"
         >
@@ -184,7 +196,7 @@ const AccountList = () => {
 
       {filteredAccounts.length === 0 ? (
         <Alert variant="info">
-          No accounts found. {searchTerm && 'Try adjusting your search terms.'}
+          No accounts found. {searchTerm && "Try adjusting your search terms."}
         </Alert>
       ) : (
         <Table striped bordered hover responsive>
@@ -209,18 +221,26 @@ const AccountList = () => {
                 </td>
                 <td>{account.customerName}</td>
                 <td>
-                  <Badge bg={account.accountType === 'SAVINGS' ? 'info' : 'primary'}>
+                  <Badge
+                    bg={account.accountType === "SAVINGS" ? "info" : "primary"}
+                  >
                     {account.accountType}
                   </Badge>
                 </td>
                 <td>
-                  <strong className={account.balance >= 0 ? 'text-success' : 'text-danger'}>
+                  <strong
+                    className={
+                      account.balance >= 0 ? "text-success" : "text-danger"
+                    }
+                  >
                     {formatCurrency(account.balance)}
                   </strong>
                 </td>
                 <td>
-                  <Badge bg={account.status === 'ACTIVE' ? 'success' : 'danger'}>
-                    {account.status === 'ACTIVE' ? 'Active' : 'Inactive'}
+                  <Badge
+                    bg={account.status === "ACTIVE" ? "success" : "danger"}
+                  >
+                    {account.status === "ACTIVE" ? "Active" : "Inactive"}
                   </Badge>
                 </td>
                 <td>{formatDate(account.createdAt)}</td>
@@ -229,7 +249,9 @@ const AccountList = () => {
                     <Button
                       variant="outline-primary"
                       size="sm"
-                      onClick={() => navigate(`/accounts/edit/${account.accountId}`)}
+                      onClick={() =>
+                        navigate(`/accounts/edit/${account.accountId}`)
+                      }
                     >
                       <Pencil />
                     </Button>
@@ -254,12 +276,10 @@ const AccountList = () => {
           <Modal.Title>Confirm Delete</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Are you sure you want to delete account{' '}
+          Are you sure you want to delete account{" "}
           <strong>{accountToDelete?.accountNumber}</strong>?
           <br />
-          <small className="text-muted">
-            This action cannot be undone.
-          </small>
+          <small className="text-muted">This action cannot be undone.</small>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>

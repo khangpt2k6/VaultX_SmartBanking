@@ -1,16 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Button, Card, Alert, Spinner } from 'react-bootstrap';
-import { useNavigate, useParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { Spinner, Row, Col, Container } from "react-bootstrap";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+import axios from "axios";
+import {
+  GlassForm,
+  GlassInput,
+  GlassSelect,
+  GlassButton,
+} from "./ui/GlassForm";
 
 const TransactionForm = () => {
   const [formData, setFormData] = useState({
-    transactionType: 'DEPOSIT',
+    transactionType: "DEPOSIT",
     amount: 0,
-    accountId: '',
-    destinationAccountId: '',
-    description: ''
+    accountId: "",
+    destinationAccountId: "",
+    description: "",
   });
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -29,14 +35,16 @@ const TransactionForm = () => {
 
   const fetchAccounts = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/accounts`);
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/accounts`
+      );
       setAccounts(response.data);
     } catch (error) {
-      console.error('Error fetching accounts:', error);
+      console.error("Error fetching accounts:", error);
       // For demo purposes, set some sample data
       setAccounts([
-        { accountId: 1, accountNumber: 'ACC001', customerName: 'John Doe' },
-        { accountId: 2, accountNumber: 'ACC002', customerName: 'Jane Smith' }
+        { accountId: 1, accountNumber: "ACC001", customerName: "John Doe" },
+        { accountId: 2, accountNumber: "ACC002", customerName: "Jane Smith" },
       ]);
     }
   };
@@ -47,8 +55,8 @@ const TransactionForm = () => {
       const response = await axios.get(`/api/transactions/${transactionId}`);
       setFormData(response.data);
     } catch (error) {
-      console.error('Error fetching transaction:', error);
-      toast.error('Failed to fetch transaction data');
+      console.error("Error fetching transaction:", error);
+      toast.error("Failed to fetch transaction data");
     } finally {
       setLoading(false);
     }
@@ -56,17 +64,17 @@ const TransactionForm = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => {
+    setFormData((prev) => {
       const newFormData = {
         ...prev,
-        [name]: value
+        [name]: value,
       };
-      
+
       // Clear destination account if transaction type is not TRANSFER
-      if (name === 'transactionType' && value !== 'TRANSFER') {
-        newFormData.destinationAccountId = '';
+      if (name === "transactionType" && value !== "TRANSFER") {
+        newFormData.destinationAccountId = "";
       }
-      
+
       return newFormData;
     });
   };
@@ -77,16 +85,22 @@ const TransactionForm = () => {
 
     try {
       if (isEdit) {
-        await axios.put(`${import.meta.env.VITE_API_URL}/api/transactions/${id}`, formData);
-        toast.success('Transaction updated successfully');
+        await axios.put(
+          `${import.meta.env.VITE_API_URL}/api/transactions/${id}`,
+          formData
+        );
+        toast.success("Transaction updated successfully");
       } else {
-        await axios.post(`${import.meta.env.VITE_API_URL}/api/transactions`, formData);
-        toast.success('Transaction created successfully');
+        await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/transactions`,
+          formData
+        );
+        toast.success("Transaction created successfully");
       }
-      navigate('/transactions');
+      navigate("/transactions");
     } catch (error) {
-      console.error('Error saving transaction:', error);
-      toast.error(`Failed to ${isEdit ? 'update' : 'create'} transaction`);
+      console.error("Error saving transaction:", error);
+      toast.error(`Failed to ${isEdit ? "update" : "create"} transaction`);
     } finally {
       setLoading(false);
     }
@@ -107,7 +121,7 @@ const TransactionForm = () => {
       <div className="col-md-8">
         <Card>
           <Card.Header>
-            <h4>{isEdit ? 'Edit Transaction' : 'New Transaction'}</h4>
+            <h4>{isEdit ? "Edit Transaction" : "New Transaction"}</h4>
           </Card.Header>
           <Card.Body>
             <Form onSubmit={handleSubmit}>
@@ -154,15 +168,18 @@ const TransactionForm = () => {
                       required
                     >
                       <option value="">Select an account</option>
-                      {accounts.map(account => (
-                        <option key={account.accountId} value={account.accountId}>
+                      {accounts.map((account) => (
+                        <option
+                          key={account.accountId}
+                          value={account.accountId}
+                        >
                           {account.accountNumber} - {account.customerName}
                         </option>
                       ))}
                     </Form.Select>
                   </Form.Group>
                 </div>
-                {formData.transactionType === 'TRANSFER' && (
+                {formData.transactionType === "TRANSFER" && (
                   <div className="col-md-6">
                     <Form.Group className="mb-3">
                       <Form.Label>Destination Account *</Form.Label>
@@ -170,13 +187,19 @@ const TransactionForm = () => {
                         name="destinationAccountId"
                         value={formData.destinationAccountId}
                         onChange={handleChange}
-                        required={formData.transactionType === 'TRANSFER'}
+                        required={formData.transactionType === "TRANSFER"}
                       >
                         <option value="">Select destination account</option>
                         {accounts
-                          .filter(account => account.accountId !== parseInt(formData.accountId))
-                          .map(account => (
-                            <option key={account.accountId} value={account.accountId}>
+                          .filter(
+                            (account) =>
+                              account.accountId !== parseInt(formData.accountId)
+                          )
+                          .map((account) => (
+                            <option
+                              key={account.accountId}
+                              value={account.accountId}
+                            >
                               {account.accountNumber} - {account.customerName}
                             </option>
                           ))}
@@ -199,24 +222,22 @@ const TransactionForm = () => {
               </Form.Group>
 
               <div className="d-flex gap-2">
-                <Button
-                  type="submit"
-                  variant="primary"
-                  disabled={loading}
-                >
+                <Button type="submit" variant="primary" disabled={loading}>
                   {loading ? (
                     <>
                       <Spinner size="sm" className="me-2" />
-                      {isEdit ? 'Updating...' : 'Creating...'}
+                      {isEdit ? "Updating..." : "Creating..."}
                     </>
+                  ) : isEdit ? (
+                    "Update Transaction"
                   ) : (
-                    isEdit ? 'Update Transaction' : 'Create Transaction'
+                    "Create Transaction"
                   )}
                 </Button>
                 <Button
                   type="button"
                   variant="secondary"
-                  onClick={() => navigate('/transactions')}
+                  onClick={() => navigate("/transactions")}
                 >
                   Cancel
                 </Button>

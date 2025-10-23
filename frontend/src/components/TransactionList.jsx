@@ -1,30 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Table, 
-  Button, 
-  Badge, 
-  InputGroup, 
-  Form, 
+import React, { useState, useEffect } from "react";
+import {
+  Table,
+  InputGroup,
+  Form,
   Modal,
-  Alert,
-  Spinner
-} from 'react-bootstrap';
-import { 
-  Pencil, 
-  Trash, 
-  Eye, 
-  Plus, 
+  Spinner,
+  Container,
+} from "react-bootstrap";
+import {
+  Pencil,
+  Trash,
+  Eye,
+  Plus,
   Search,
-  CashStack
-} from 'react-bootstrap-icons';
-import { Link, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import axios from 'axios';
+  CashStack,
+} from "react-bootstrap-icons";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 const TransactionList = () => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [transactionToDelete, setTransactionToDelete] = useState(null);
   const [filteredTransactions, setFilteredTransactions] = useState([]);
@@ -42,11 +40,13 @@ const TransactionList = () => {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/transactions`);
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/transactions`
+      );
       setTransactions(response.data);
     } catch (error) {
-      console.error('Error fetching transactions:', error);
-      toast.error('Failed to fetch transactions');
+      console.error("Error fetching transactions:", error);
+      toast.error("Failed to fetch transactions");
       setTransactions([]);
     } finally {
       setLoading(false);
@@ -57,11 +57,21 @@ const TransactionList = () => {
     if (!searchTerm.trim()) {
       setFilteredTransactions(transactions);
     } else {
-      const filtered = transactions.filter(transaction =>
-        transaction.transactionType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        transaction.accountNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (transaction.destinationAccountNumber && transaction.destinationAccountNumber.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        transaction.description.toLowerCase().includes(searchTerm.toLowerCase())
+      const filtered = transactions.filter(
+        (transaction) =>
+          transaction.transactionType
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          transaction.accountNumber
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          (transaction.destinationAccountNumber &&
+            transaction.destinationAccountNumber
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase())) ||
+          transaction.description
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
       );
       setFilteredTransactions(filtered);
     }
@@ -74,12 +84,16 @@ const TransactionList = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/transactions/${transactionToDelete.transactionId}`);
-      toast.success('Transaction deleted successfully');
+      await axios.delete(
+        `${import.meta.env.VITE_API_URL}/api/transactions/${
+          transactionToDelete.transactionId
+        }`
+      );
+      toast.success("Transaction deleted successfully");
       fetchTransactions();
     } catch (error) {
-      console.error('Error deleting transaction:', error);
-      toast.error('Failed to delete transaction');
+      console.error("Error deleting transaction:", error);
+      toast.error("Failed to delete transaction");
     } finally {
       setShowDeleteModal(false);
       setTransactionToDelete(null);
@@ -87,9 +101,9 @@ const TransactionList = () => {
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(amount);
   };
 
@@ -99,19 +113,27 @@ const TransactionList = () => {
 
   const getTransactionTypeColor = (type) => {
     switch (type) {
-      case 'DEPOSIT': return 'success';
-      case 'WITHDRAWAL': return 'danger';
-      case 'TRANSFER': return 'info';
-      default: return 'secondary';
+      case "DEPOSIT":
+        return "success";
+      case "WITHDRAWAL":
+        return "danger";
+      case "TRANSFER":
+        return "info";
+      default:
+        return "secondary";
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'COMPLETED': return 'success';
-      case 'PENDING': return 'warning';
-      case 'FAILED': return 'danger';
-      default: return 'secondary';
+      case "COMPLETED":
+        return "success";
+      case "PENDING":
+        return "warning";
+      case "FAILED":
+        return "danger";
+      default:
+        return "secondary";
     }
   };
 
@@ -129,9 +151,9 @@ const TransactionList = () => {
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1>Transactions</h1>
-        <Button 
-          as={Link} 
-          to="/transactions/new" 
+        <Button
+          as={Link}
+          to="/transactions/new"
           variant="primary"
           className="d-flex align-items-center gap-2"
         >
@@ -155,7 +177,8 @@ const TransactionList = () => {
 
       {filteredTransactions.length === 0 ? (
         <Alert variant="info">
-          No transactions found. {searchTerm && 'Try adjusting your search terms.'}
+          No transactions found.{" "}
+          {searchTerm && "Try adjusting your search terms."}
         </Alert>
       ) : (
         <Table striped bordered hover responsive>
@@ -176,26 +199,39 @@ const TransactionList = () => {
               <tr key={transaction.transactionId}>
                 <td>{transaction.transactionId}</td>
                 <td>
-                  <Badge bg={getTransactionTypeColor(transaction.transactionType)}>
+                  <Badge
+                    bg={getTransactionTypeColor(transaction.transactionType)}
+                  >
                     {transaction.transactionType}
                   </Badge>
                 </td>
                 <td>
-                  <strong className={
-                    transaction.transactionType === 'DEPOSIT' ? 'text-success' : 
-                    transaction.transactionType === 'WITHDRAWAL' ? 'text-danger' : 
-                    'text-info'
-                  }>
-                    {transaction.transactionType === 'DEPOSIT' ? '+' : 
-                     transaction.transactionType === 'WITHDRAWAL' ? '-' : 
-                     '↔'}{formatCurrency(transaction.amount)}
+                  <strong
+                    className={
+                      transaction.transactionType === "DEPOSIT"
+                        ? "text-success"
+                        : transaction.transactionType === "WITHDRAWAL"
+                        ? "text-danger"
+                        : "text-info"
+                    }
+                  >
+                    {transaction.transactionType === "DEPOSIT"
+                      ? "+"
+                      : transaction.transactionType === "WITHDRAWAL"
+                      ? "-"
+                      : "↔"}
+                    {formatCurrency(transaction.amount)}
                   </strong>
                 </td>
                 <td>
-                  {transaction.transactionType === 'TRANSFER' ? (
+                  {transaction.transactionType === "TRANSFER" ? (
                     <div>
-                      <div><strong>From: {transaction.accountNumber}</strong></div>
-                      <div className="text-muted small">To: {transaction.destinationAccountNumber || 'N/A'}</div>
+                      <div>
+                        <strong>From: {transaction.accountNumber}</strong>
+                      </div>
+                      <div className="text-muted small">
+                        To: {transaction.destinationAccountNumber || "N/A"}
+                      </div>
                     </div>
                   ) : (
                     <strong>{transaction.accountNumber}</strong>
@@ -203,9 +239,7 @@ const TransactionList = () => {
                 </td>
                 <td>{transaction.description}</td>
                 <td>
-                  <Badge bg="success">
-                    COMPLETED
-                  </Badge>
+                  <Badge bg="success">COMPLETED</Badge>
                 </td>
                 <td>{formatDateTime(transaction.createdAt)}</td>
                 <td>
@@ -213,7 +247,11 @@ const TransactionList = () => {
                     <Button
                       variant="outline-primary"
                       size="sm"
-                      onClick={() => navigate(`/transactions/edit/${transaction.transactionId}`)}
+                      onClick={() =>
+                        navigate(
+                          `/transactions/edit/${transaction.transactionId}`
+                        )
+                      }
                     >
                       <Pencil />
                     </Button>
@@ -240,9 +278,7 @@ const TransactionList = () => {
         <Modal.Body>
           Are you sure you want to delete this transaction?
           <br />
-          <small className="text-muted">
-            This action cannot be undone.
-          </small>
+          <small className="text-muted">This action cannot be undone.</small>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>

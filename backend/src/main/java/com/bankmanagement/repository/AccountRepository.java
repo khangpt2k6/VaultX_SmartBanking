@@ -8,11 +8,16 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
     
     long countByStatus(Account.AccountStatus status);
+    
+    Optional<Account> findByCustomerId(Long customerId);
+    
+    List<Account> findByCustomerIdAndStatus(Long customerId, Account.AccountStatus status);
     
     @Query("SELECT COALESCE(SUM(a.balance), 0) FROM Account a WHERE a.status = 'ACTIVE'")
     BigDecimal getTotalBalance();

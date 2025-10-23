@@ -1,135 +1,259 @@
-import React, { useState } from 'react';
-import { Navbar, Nav, Container, NavDropdown, Badge, Button } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
-import { Shield, PeopleFill, CreditCard, ArrowLeftRight, BoxArrowRight, Person, PersonPlus, List } from 'react-bootstrap-icons';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Shield,
+  PeopleFill,
+  CreditCard,
+  ArrowLeftRight,
+  BoxArrowRight,
+  Person,
+  PersonPlus,
+  List,
+  X,
+} from "react-bootstrap-icons";
+import "../styles/navigation.css";
 
 const Navigation = ({ onToggleSidebar }) => {
   const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(null);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/login');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
   };
 
-  const isAuthenticated = localStorage.getItem('token');
+  const isAuthenticated = localStorage.getItem("token");
+
+  const toggleDropdown = (name) => {
+    setDropdownOpen(dropdownOpen === name ? null : name);
+  };
 
   return (
-        <Navbar bg="dark" variant="dark" expand="lg" className="mb-4 shadow">
-      <Container fluid>
-        <Navbar.Brand as={Link} to="/" className="d-flex align-items-center fw-bold fs-3">
-          <Shield className="me-2" />
-          <span className="text-white">
-            VaultX
-          </span>
-          <Badge bg="success" className="ms-2">Pro</Badge>
-        </Navbar.Brand>
-        
-        {/* Mobile sidebar toggle */}
-        {isAuthenticated && (
-          <Button 
-            variant="outline-light" 
-            className="d-lg-none me-2"
-            onClick={onToggleSidebar}
+    <nav className="navbar-glass">
+      <div className="navbar-container">
+        {/* Logo */}
+        <Link to="/" className="navbar-brand">
+          <Shield size={32} />
+          <span>VaultX</span>
+          <span
+            className="badge-glass"
+            style={{ marginLeft: "0.5rem", fontSize: "0.65rem" }}
           >
-            <List size={20} />
-          </Button>
-        )}
-        
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            <Nav.Link as={Link} to="/" className="fw-semibold px-3">
-              <i className="bi bi-speedometer2 me-1"></i>
-              Dashboard
-            </Nav.Link>
-            
-            <NavDropdown 
-              title={
-                <span className="fw-semibold">
-                  <PeopleFill className="me-1" />
-                  Customers
-                </span>
-              } 
-              id="customers-dropdown"
-              className="px-2"
-            >
-              <NavDropdown.Item as={Link} to="/customers" className="d-flex align-items-center">
-                <PeopleFill className="me-2" />
+            Pro
+          </span>
+        </Link>
+
+        {/* Desktop Navigation */}
+        <div className="navbar-menu-desktop">
+          <Link to="/" className="nav-link">
+            Dashboard
+          </Link>
+
+          <div className="nav-dropdown">
+            <button className="nav-link dropdown-toggle">
+              <PeopleFill size={18} />
+              <span>Customers</span>
+            </button>
+            <div className="dropdown-menu">
+              <Link to="/customers" className="dropdown-item">
+                <PeopleFill size={16} />
                 View All Customers
-              </NavDropdown.Item>
-              <NavDropdown.Divider />
-              <NavDropdown.Item as={Link} to="/customers/new" className="d-flex align-items-center">
-                <PersonPlus className="me-2" />
+              </Link>
+              <Link to="/customers/new" className="dropdown-item">
+                <PersonPlus size={16} />
                 Add New Customer
-              </NavDropdown.Item>
-            </NavDropdown>
-            
-            <NavDropdown 
-              title={
-                <span className="fw-semibold">
-                  <CreditCard className="me-1" />
-                  Accounts
-                </span>
-              } 
-              id="accounts-dropdown"
-              className="px-2"
-            >
-              <NavDropdown.Item as={Link} to="/accounts" className="d-flex align-items-center">
-                <CreditCard className="me-2" />
+              </Link>
+            </div>
+          </div>
+
+          <div className="nav-dropdown">
+            <button className="nav-link dropdown-toggle">
+              <CreditCard size={18} />
+              <span>Accounts</span>
+            </button>
+            <div className="dropdown-menu">
+              <Link to="/accounts" className="dropdown-item">
+                <CreditCard size={16} />
                 View All Accounts
-              </NavDropdown.Item>
-              <NavDropdown.Divider />
-              <NavDropdown.Item as={Link} to="/accounts/new" className="d-flex align-items-center">
-                <CreditCard className="me-2" />
+              </Link>
+              <Link to="/accounts/new" className="dropdown-item">
+                <CreditCard size={16} />
                 Open New Account
-              </NavDropdown.Item>
-            </NavDropdown>
-            
-            <NavDropdown 
-              title={
-                <span className="fw-semibold">
-                  <ArrowLeftRight className="me-1" />
-                  Transactions
-                </span>
-              } 
-              id="transactions-dropdown"
-              className="px-2"
-            >
-              <NavDropdown.Item as={Link} to="/transactions" className="d-flex align-items-center">
-                <ArrowLeftRight className="me-2" />
+              </Link>
+            </div>
+          </div>
+
+          <div className="nav-dropdown">
+            <button className="nav-link dropdown-toggle">
+              <ArrowLeftRight size={18} />
+              <span>Transactions</span>
+            </button>
+            <div className="dropdown-menu">
+              <Link to="/transactions" className="dropdown-item">
+                <ArrowLeftRight size={16} />
                 View All Transactions
-              </NavDropdown.Item>
-              <NavDropdown.Divider />
-              <NavDropdown.Item as={Link} to="/transactions/new" className="d-flex align-items-center">
-                <ArrowLeftRight className="me-2" />
+              </Link>
+              <Link to="/transactions/new" className="dropdown-item">
+                <ArrowLeftRight size={16} />
                 New Transaction
-              </NavDropdown.Item>
-            </NavDropdown>
-          </Nav>
-          
-          <Nav className="ms-auto">
-            {isAuthenticated ? (
-              <Nav.Link onClick={handleLogout} className="fw-semibold px-3 d-flex align-items-center">
-                <BoxArrowRight className="me-1" />
-                Logout
-              </Nav.Link>
-            ) : (
-              <>
-                <Nav.Link as={Link} to="/login" className="fw-semibold px-3 d-flex align-items-center">
-                  <Person className="me-1" />
-                  Login
-                </Nav.Link>
-                <Nav.Link as={Link} to="/register" className="fw-semibold px-3 d-flex align-items-center">
-                  <PersonPlus className="me-1" />
-                  Register
-                </Nav.Link>
-              </>
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Right side - Auth or Menu Toggle */}
+        <div className="navbar-right">
+          {isAuthenticated ? (
+            <>
+              {/* Desktop Auth */}
+              <button onClick={handleLogout} className="nav-link logout-btn">
+                <BoxArrowRight size={18} />
+                <span>Logout</span>
+              </button>
+
+              {/* Mobile sidebar toggle */}
+              <button
+                className="menu-toggle d-lg-none"
+                onClick={onToggleSidebar}
+              >
+                <List size={24} />
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="nav-link">
+                <Person size={18} />
+                <span>Login</span>
+              </Link>
+              <Link to="/register" className="nav-link">
+                <PersonPlus size={18} />
+                <span>Register</span>
+              </Link>
+            </>
+          )}
+
+          {/* Mobile menu toggle */}
+          <button
+            className="mobile-menu-toggle"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X size={24} /> : <List size={24} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Navigation Menu */}
+      {mobileMenuOpen && (
+        <div className="mobile-menu">
+          <Link
+            to="/"
+            className="mobile-nav-link"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            Dashboard
+          </Link>
+
+          <div className="mobile-dropdown">
+            <button
+              className="mobile-dropdown-toggle"
+              onClick={() => toggleDropdown("customers")}
+            >
+              <PeopleFill size={18} />
+              <span>Customers</span>
+            </button>
+            {dropdownOpen === "customers" && (
+              <div className="mobile-dropdown-menu">
+                <Link
+                  to="/customers"
+                  className="mobile-dropdown-item"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  View All Customers
+                </Link>
+                <Link
+                  to="/customers/new"
+                  className="mobile-dropdown-item"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Add New Customer
+                </Link>
+              </div>
             )}
-          </Nav>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
+          </div>
+
+          <div className="mobile-dropdown">
+            <button
+              className="mobile-dropdown-toggle"
+              onClick={() => toggleDropdown("accounts")}
+            >
+              <CreditCard size={18} />
+              <span>Accounts</span>
+            </button>
+            {dropdownOpen === "accounts" && (
+              <div className="mobile-dropdown-menu">
+                <Link
+                  to="/accounts"
+                  className="mobile-dropdown-item"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  View All Accounts
+                </Link>
+                <Link
+                  to="/accounts/new"
+                  className="mobile-dropdown-item"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Open New Account
+                </Link>
+              </div>
+            )}
+          </div>
+
+          <div className="mobile-dropdown">
+            <button
+              className="mobile-dropdown-toggle"
+              onClick={() => toggleDropdown("transactions")}
+            >
+              <ArrowLeftRight size={18} />
+              <span>Transactions</span>
+            </button>
+            {dropdownOpen === "transactions" && (
+              <div className="mobile-dropdown-menu">
+                <Link
+                  to="/transactions"
+                  className="mobile-dropdown-item"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  View All Transactions
+                </Link>
+                <Link
+                  to="/transactions/new"
+                  className="mobile-dropdown-item"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  New Transaction
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {isAuthenticated && (
+            <button
+              onClick={() => {
+                handleLogout();
+                setMobileMenuOpen(false);
+              }}
+              className="mobile-nav-link logout-btn"
+            >
+              <BoxArrowRight size={18} />
+              <span>Logout</span>
+            </button>
+          )}
+        </div>
+      )}
+    </nav>
   );
 };
 

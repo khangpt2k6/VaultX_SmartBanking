@@ -1,24 +1,28 @@
 spring:
   application:
     name: bank-management-system
-  
+
   datasource:
-    url: ${DATABASE_URL}
+    url: ${DATABASE_URL}?sslmode=require&tcpKeepAlives=true&socketTimeout=30
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 3
-      minimum-idle: 1
-      connection-timeout: 30000
-      idle-timeout: 300000
-      max-lifetime: 600000
-      leak-detection-threshold: 60000
+      maximum-pool-size: 5
+      minimum-idle: 2
+      connection-timeout: 60000
+      idle-timeout: 600000
+      max-lifetime: 1200000
+      leak-detection-threshold: 120000
       auto-commit: true
-  
+      connection-test-query: "SELECT 1"
+      data-source-properties:
+        sslmode: require
+        tcpKeepAlives: true
+
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:
@@ -29,11 +33,25 @@ spring:
         connection:
           provider_disables_autocommit: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-  
+
   security:
     user:
       name: ${ADMIN_USERNAME}
       password: ${ADMIN_PASSWORD}
+
+  # Async configuration
+  task:
+    execution:
+      pool:
+        core-size: 5
+        max-size: 20
+        queue-capacity: 100
+        keep-alive: 60s
+      thread-name-prefix: "VaultX-Async-"
+    scheduling:
+      pool:
+        size: 3
+      thread-name-prefix: "VaultX-Scheduler-"
 
 server:
   port: 8080
@@ -51,21 +69,6 @@ logging:
     org.hibernate.SQL: DEBUG
     org.springframework.scheduling: DEBUG
     org.springframework.scheduling.concurrent: DEBUG
-
-# Async configuration
-spring:
-  task:
-    execution:
-      pool:
-        core-size: 5
-        max-size: 20
-        queue-capacity: 100
-        keep-alive: 60s
-      thread-name-prefix: "VaultX-Async-"
-    scheduling:
-      pool:
-        size: 3
-      thread-name-prefix: "VaultX-Scheduler-"
 
 # JWT Configuration
 jwt:

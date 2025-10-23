@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
-import { Form, Button, Card, Alert, Spinner } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import axios from 'axios';
+import React, { useState } from "react";
+import { Spinner } from "react-bootstrap";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { GlassForm, GlassInput } from "./ui/GlassForm";
+import { GlassButton } from "./ui/GlassButton";
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
   const [loading, setLoading] = useState(false);
 
@@ -15,9 +17,9 @@ const Login = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -26,81 +28,109 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, formData);
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/auth/login`,
+        formData
+      );
       const { token, user } = response.data;
-      
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-      
-      toast.success('Login successful!');
-      navigate('/');
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      toast.success("Login successful!");
+      navigate("/");
     } catch (error) {
-      console.error('Login error:', error);
-      toast.error('Invalid email or password');
+      console.error("Login error:", error);
+      toast.error("Invalid email or password");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="row justify-content-center">
-      <div className="col-md-6">
-        <Card>
-          <Card.Header>
-            <h4 className="text-center">Login</h4>
-          </Card.Header>
-          <Card.Body>
-            <Form onSubmit={handleSubmit}>
-              <Form.Group className="mb-3">
-                <Form.Label>Email</Form.Label>
-                <Form.Control
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  placeholder="Enter your email"
-                />
-              </Form.Group>
+    <div
+      className="min-vh-100 d-flex align-items-center justify-content-center"
+      style={{ padding: "2rem" }}
+    >
+      <div style={{ width: "100%", maxWidth: "420px" }}>
+        <div className="text-center mb-5 animate-fade-in-up">
+          <h1
+            className="text-gradient fw-bold mb-2"
+            style={{ fontSize: "2.5rem" }}
+          >
+            VaultX
+          </h1>
+          <p className="text-secondary">Secure Financial Management</p>
+        </div>
 
-              <Form.Group className="mb-3">
-                <Form.Label>Password</Form.Label>
-                <Form.Control
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  placeholder="Enter your password"
-                />
-              </Form.Group>
+        <GlassCard size="lg" className="animate-fade-in-up">
+          <h4 className="text-center mb-4 fw-bold">Login to Your Account</h4>
 
-              <Button
-                type="submit"
-                variant="primary"
-                className="w-100"
-                disabled={loading}
+          <GlassForm onSubmit={handleSubmit}>
+            <GlassInput
+              label="Email Address"
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              placeholder="your@email.com"
+            />
+
+            <GlassInput
+              label="Password"
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              placeholder="Enter your password"
+            />
+
+            <GlassButton
+              type="submit"
+              variant="primary"
+              className="w-100 mb-3"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Spinner size="sm" className="me-2" />
+                  Logging in...
+                </>
+              ) : (
+                "Login"
+              )}
+            </GlassButton>
+          </GlassForm>
+
+          <div className="text-center">
+            <p className="text-secondary small mb-0">
+              Don't have an account?{" "}
+              <Link
+                to="/register"
+                className="text-white fw-bold text-decoration-none"
               >
-                {loading ? (
-                  <>
-                    <Spinner size="sm" className="me-2" />
-                    Logging in...
-                  </>
-                ) : (
-                  'Login'
-                )}
-              </Button>
-            </Form>
-
-            <div className="text-center mt-3">
-              <p className="mb-0">
-                Don't have an account?{' '}
-                <Link to="/register">Register here</Link>
-              </p>
-            </div>
-          </Card.Body>
-        </Card>
+                Register here
+              </Link>
+            </p>
+          </div>
+        </GlassCard>
       </div>
+    </div>
+  );
+};
+
+const GlassCard = ({ children, size = "md", className = "" }) => {
+  const sizeClasses = {
+    sm: "p-3",
+    md: "p-4",
+    lg: "p-6",
+  };
+
+  return (
+    <div className={`card-glass ${sizeClasses[size]} ${className}`}>
+      {children}
     </div>
   );
 };

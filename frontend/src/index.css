@@ -1,36 +1,219 @@
+/* Import Glassmorphism Design System */
+@import "./styles/glassmorphism.css";
+
 body {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f8f9fa;
+  background-color: #000000;
+  color: #ffffff;
   min-height: 100vh;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+  background: var(--bg-tertiary);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
 }
 
 /* Custom styles for VaultX */
 .App {
   min-height: 100vh;
+  background: var(--bg-primary);
+  position: relative;
+  z-index: 2;
+}
+
+/* ========================================
+   BOOTSTRAP OVERRIDES FOR GLASSMORPHISM
+   ======================================== */
+
+/* Override Bootstrap classes */
+.btn {
+  border-radius: 10px;
+  font-weight: 600;
+  transition: var(--transition-base);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-medium);
+  color: var(--text-primary);
+}
+
+.btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-bright);
+}
+
+.btn-primary {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-slow);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.card-body {
+  color: var(--text-primary);
+}
+
+.card-header {
+  background: var(--bg-hover);
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-primary);
+}
+
+.form-control {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  color: var(--text-primary);
+  border-radius: 10px;
+  transition: var(--transition-base);
+}
+
+.form-control:focus {
+  background: var(--bg-tertiary);
+  border-color: var(--border-bright);
+  color: var(--text-primary);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+.form-control::placeholder {
+  color: var(--text-quaternary);
+}
+
+.form-label {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.table {
+  background: var(--bg-tertiary);
+  border-collapse: collapse;
+}
+
+.table thead th {
+  background: var(--bg-hover);
+  border-color: var(--border-light);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.table tbody td {
+  border-color: var(--border-light);
+  color: var(--text-secondary);
+}
+
+.table tbody tr:hover {
+  background: var(--bg-hover);
+}
+
+.badge {
+  background: var(--bg-hover);
+  border: 1px solid var(--border-medium);
+  color: var(--text-primary);
+  font-weight: 600;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+}
+
+.alert {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  color: var(--text-primary);
+}
+
+.alert-info {
+  background: rgba(13, 110, 253, 0.1);
+  border-color: rgba(13, 110, 253, 0.3);
+}
+
+.alert-success {
+  background: rgba(25, 135, 84, 0.1);
+  border-color: rgba(25, 135, 84, 0.3);
+}
+
+.alert-warning {
+  background: rgba(255, 193, 7, 0.1);
+  border-color: rgba(255, 193, 7, 0.3);
+}
+
+.alert-danger {
+  background: rgba(220, 53, 69, 0.1);
+  border-color: rgba(220, 53, 69, 0.3);
+}
+
+.nav-tabs {
+  border-bottom: 1px solid var(--border-light);
+}
+
+.nav-tabs .nav-link {
+  color: var(--text-secondary);
+  border: none;
   background: transparent;
 }
 
-/* VaultX Brand Colors */
-:root {
-  --vaultx-primary: #0d6efd;
-  --vaultx-secondary: #6c757d;
-  --vaultx-success: #198754;
-  --vaultx-warning: #ffc107;
-  --vaultx-danger: #dc3545;
-  --vaultx-info: #0dcaf0;
+.nav-tabs .nav-link:hover {
+  border-color: var(--border-medium);
+  color: var(--text-primary);
 }
 
-/* Loading spinner styles */
+.nav-tabs .nav-link.active {
+  background: var(--bg-hover);
+  border: 1px solid var(--border-medium);
+  color: var(--text-primary);
+}
+
+/* ========================================
+   CONTAINER & LAYOUT
+   ======================================== */
+
+.main-content {
+  min-height: 100vh;
+  position: relative;
+  z-index: 2;
+  transition: margin-left 0.3s ease;
+}
+
+.container-fluid {
+  padding-top: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  position: relative;
+  z-index: 2;
+  margin-top: 80px;
+}
+
+.sidebar-content {
+  transition: margin-left var(--transition-base);
+  margin-top: 0;
+  position: relative;
+  z-index: 2;
+}
+
+/* ========================================
+   UTILITIES
+   ======================================== */
+
 .loading-spinner {
   display: flex;
   justify-content: center;
@@ -38,190 +221,119 @@ code {
   height: 200px;
 }
 
-/* Custom button styles */
-.btn-custom {
-  border-radius: 6px;
-  font-weight: 500;
+.spinner-border {
+  border-color: var(--bg-hover);
+  border-right-color: rgba(255, 255, 255, 0.25);
 }
 
-/* Card styles */
-.card-custom {
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-/* Table styles */
-.table-custom {
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-/* Form styles */
-.form-control:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
-}
-
-/* Badge styles */
-.badge-custom {
-  font-size: 0.75rem;
-  padding: 0.5em 0.75em;
-  border-radius: 6px;
-}
-
-/* Navigation styles */
-.navbar-custom {
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-/* Dashboard card styles */
-.dashboard-card {
-  border-radius: 8px;
-}
-
-/* VaultX Modern Enhancements */
-.glass-effect {
-  border-radius: 8px;
-}
-
-.gradient-text {
-  color: var(--vaultx-primary);
-}
-
-.shadow-vaultx {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.hover-lift {
-  transition: all 0.2s ease;
-}
-
-.hover-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* Modern Card Styles */
-.card-modern {
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Button Enhancements */
-.btn-vaultx {
-  border-radius: 6px;
-  font-weight: 500;
-  padding: 8px 16px;
-}
-
-/* Animation Classes */
 .fade-in-up {
-  opacity: 1;
+  animation: fadeInUp 0.6s ease-out;
 }
 
-/* Sidebar styles */
-.sidebar {
-  transition: all 0.3s ease;
-  top: 80px !important; /* Always start below navbar */
-  background: #f8f9fa;
+.text-gradient {
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    rgba(255, 255, 255, 0.6) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.sidebar.collapsed {
-  width: 60px !important;
+.opacity-60 {
+  opacity: 0.6;
 }
 
-.sidebar.collapsed .card-body {
-  padding: 1rem;
-  min-height: 200px;
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+/* Desktop view */
+@media (min-width: 993px) {
+  .container-fluid {
+    padding-top: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-top: 80px;
+  }
+
+  .main-content {
+    margin-left: 280px;
+  }
+
+  .main-content.sidebar-content {
+    transition: margin-left 0.3s ease;
+  }
 }
 
-.sidebar.collapsed .btn {
-  padding: 0.75rem;
-  justify-content: center !important;
-  margin-bottom: 1rem;
+@media (max-width: 992px) {
+  .container-fluid {
+    padding-top: 20px;
+    padding-left: 15px;
+    padding-right: 15px;
+    margin-top: 70px;
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
 }
 
-/* Ensure sidebar takes full height */
-.sidebar .card {
-  height: calc(100vh - 100px);
-}
-
-.sidebar .card-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  background: #ffffff;
-}
-
-.sidebar-content {
-  transition: margin-left 0.3s ease;
-  margin-top: 0 !important; /* Remove top margin since sidebar is positioned correctly */
-}
-
-/* Responsive adjustments */
 @media (max-width: 768px) {
-  .container {
-    padding: 0 15px;
+  .container-fluid {
+    padding-top: 20px;
+    padding-left: 15px;
+    padding-right: 15px;
+    margin-top: 70px;
   }
-  
-  .table-responsive {
-    font-size: 0.875rem;
+
+  .navbar-glass {
+    padding: 1rem 1.5rem !important;
   }
-  
-  .display-5 {
+
+  .card-glass {
+    padding: 1.5rem;
+  }
+
+  .form-glass {
+    padding: 1.5rem;
+  }
+
+  .stat-value {
     font-size: 2rem;
   }
-  
-  /* Hide sidebar on mobile */
-  .sidebar {
-    transform: translateX(-100%);
-    width: 250px !important;
-    top: 80px !important; /* Always start below navbar */
-  }
-  
-  .sidebar-content {
-    margin-left: 0 !important;
-  }
-  
-  /* Show sidebar when toggled */
-  .sidebar.show {
-    transform: translateX(0);
-  }
-  
-  /* Override collapsed state on mobile */
-  .sidebar.collapsed {
-    width: 250px !important;
-  }
-  
-  /* Stats cards stack on mobile */
-  .stats-row .col-lg-3 {
-    margin-bottom: 1rem;
-  }
-  
-  /* Activity cards stack on mobile */
-  .activity-row .col-lg-6 {
-    margin-bottom: 1rem;
+
+  .display-5 {
+    font-size: 1.75rem;
   }
 }
 
 @media (max-width: 576px) {
-  .display-5 {
-    font-size: 1.5rem;
+  .container-fluid {
+    padding-top: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-top: 70px;
   }
-  
-  .sidebar {
-    width: 100%;
+
+  .navbar-glass {
+    padding: 0.75rem 1rem !important;
   }
-  
-  /* Make cards more compact on small screens */
-  .card-body {
+
+  .card-glass {
     padding: 1rem;
   }
-  
-  /* Adjust button sizes */
-  .btn {
-    font-size: 0.875rem;
-    padding: 0.5rem 1rem;
+
+  .form-glass {
+    padding: 1rem;
+  }
+
+  .stat-value {
+    font-size: 1.75rem;
+  }
+
+  .display-5 {
+    font-size: 1.5rem;
   }
 }
