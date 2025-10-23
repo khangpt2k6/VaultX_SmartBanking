@@ -10,7 +10,8 @@ import {
 } from "react-bootstrap";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { GlassCard, GlassButton } from "./ui/GlassCard";
+import { GlassCard } from "./ui/GlassCard";
+import { GlassButton } from "./ui/GlassButton";
 
 const Trading = () => {
   const [assets, setAssets] = useState([]);

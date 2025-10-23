@@ -40,10 +40,12 @@ A modern, secure banking management system built with **Spring Boot** backend an
 - Node.js 16+
 - Maven 3.6+
 
+Download Maven extensions
+
 ### Backend
 ```bash
 cd backend
-./mvn spring-boot:run
+mvn spring-boot:run
 ```
 
 ### Frontend

@@ -18,7 +18,8 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { GlassCard, GlassButton } from "./ui/GlassCard";
+import { GlassCard } from "./ui/GlassCard";
+import { GlassButton } from "./ui/GlassButton";
 
 const CustomerList = () => {
   const [customers, setCustomers] = useState([]);

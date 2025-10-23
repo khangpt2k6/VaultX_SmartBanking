@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Table, Form, Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { GlassCard, GlassButton } from "./ui/GlassCard";
+import { GlassCard } from "./ui/GlassCard";
+import { GlassButton } from "./ui/GlassButton";
 
 const TradeHistory = () => {
   const [trades, setTrades] = useState([]);

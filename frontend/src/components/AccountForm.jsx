@@ -3,12 +3,8 @@ import { Spinner, Row, Col, Container } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
-import {
-  GlassForm,
-  GlassInput,
-  GlassSelect,
-  GlassButton,
-} from "./ui/GlassForm";
+import { GlassForm, GlassInput, GlassSelect } from "./ui/GlassForm";
+import { GlassButton } from "./ui/GlassButton";
 
 const AccountForm = () => {
   const [formData, setFormData] = useState({
