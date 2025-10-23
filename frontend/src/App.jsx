@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 import Navigation from "./components/Navigation";
-import Sidebar from "./components/Sidebar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./components/Dashboard";
 import CustomerList from "./components/CustomerList";
@@ -23,48 +22,14 @@ import TradeHistory from "./components/TradeHistory";
 
 function App() {
   const isAuthenticated = localStorage.getItem("token");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
-
-  const closeSidebar = () => {
-    setSidebarOpen(false);
-  };
-
-  const toggleSidebarCollapse = () => {
-    setSidebarCollapsed(!sidebarCollapsed);
-  };
 
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <div className="App">
-        <Navigation onToggleSidebar={toggleSidebar} />
-
-        {/* Sidebar - only show when authenticated */}
-        {isAuthenticated && (
-          <Sidebar
-            isOpen={sidebarOpen}
-            onClose={closeSidebar}
-            isCollapsed={sidebarCollapsed}
-            onToggleCollapse={toggleSidebarCollapse}
-          />
-        )}
+        <Navigation />
 
         {/* Main Content */}
-        <div
-          className={`main-content ${isAuthenticated ? "sidebar-content" : ""}`}
-          style={{
-            marginLeft: isAuthenticated
-              ? sidebarCollapsed
-                ? "80px"
-                : "280px"
-              : "0",
-            transition: "margin-left 0.3s ease",
-          }}
-        >
+        <div className="main-content">
           <div className="container-fluid mt-4">
             <Routes>
               {/* Public routes */}

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  Shield,
-  PeopleFill,
+  GraphUp,
+  Bank2,
   CreditCard,
   ArrowLeftRight,
   BoxArrowRight,
@@ -10,13 +10,15 @@ import {
   PersonPlus,
   List,
   X,
+  ChevronDown,
 } from "react-bootstrap-icons";
 import "../styles/navigation.css";
 
-const Navigation = ({ onToggleSidebar }) => {
+const Navigation = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(null);
+  const [desktopDropdownOpen, setDesktopDropdownOpen] = useState(null);
+  const [mobileDropdownOpen, setMobileDropdownOpen] = useState(null);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -26,8 +28,12 @@ const Navigation = ({ onToggleSidebar }) => {
 
   const isAuthenticated = localStorage.getItem("token");
 
-  const toggleDropdown = (name) => {
-    setDropdownOpen(dropdownOpen === name ? null : name);
+  const toggleDesktopDropdown = (name) => {
+    setDesktopDropdownOpen(desktopDropdownOpen === name ? null : name);
+  };
+
+  const toggleMobileDropdown = (name) => {
+    setMobileDropdownOpen(mobileDropdownOpen === name ? null : name);
   };
 
   return (
@@ -35,69 +41,132 @@ const Navigation = ({ onToggleSidebar }) => {
       <div className="navbar-container">
         {/* Logo */}
         <Link to="/" className="navbar-brand">
-          <Shield size={32} />
+          <GraphUp size={28} />
           <span>VaultX</span>
-          <span
-            className="badge-glass"
-            style={{ marginLeft: "0.5rem", fontSize: "0.65rem" }}
-          >
-            Pro
-          </span>
         </Link>
 
         {/* Desktop Navigation */}
         <div className="navbar-menu-desktop">
-          <Link to="/" className="nav-link">
-            Dashboard
-          </Link>
-
-          <div className="nav-dropdown">
-            <button className="nav-link dropdown-toggle">
-              <PeopleFill size={18} />
-              <span>Customers</span>
+          {/* Banking Dropdown */}
+          <div
+            className={`nav-dropdown ${
+              desktopDropdownOpen === "banking" ? "open" : ""
+            }`}
+          >
+            <button
+              className="nav-link dropdown-toggle"
+              onClick={() => toggleDesktopDropdown("banking")}
+            >
+              <Bank2 size={18} />
+              <span>Banking</span>
+              <ChevronDown size={14} className="chevron-icon" />
             </button>
             <div className="dropdown-menu">
-              <Link to="/customers" className="dropdown-item">
-                <PeopleFill size={16} />
-                View All Customers
-              </Link>
-              <Link to="/customers/new" className="dropdown-item">
-                <PersonPlus size={16} />
-                Add New Customer
-              </Link>
-            </div>
-          </div>
-
-          <div className="nav-dropdown">
-            <button className="nav-link dropdown-toggle">
-              <CreditCard size={18} />
-              <span>Accounts</span>
-            </button>
-            <div className="dropdown-menu">
-              <Link to="/accounts" className="dropdown-item">
+              <Link
+                to="/accounts"
+                className="dropdown-item"
+                onClick={() => setDesktopDropdownOpen(null)}
+              >
                 <CreditCard size={16} />
-                View All Accounts
+                View Account
               </Link>
-              <Link to="/accounts/new" className="dropdown-item">
+              <Link
+                to="/customers"
+                className="dropdown-item"
+                onClick={() => setDesktopDropdownOpen(null)}
+              >
+                <Bank2 size={16} />
+                View Customers
+              </Link>
+              <Link
+                to="/transactions"
+                className="dropdown-item"
+                onClick={() => setDesktopDropdownOpen(null)}
+              >
+                <ArrowLeftRight size={16} />
+                View Transactions
+              </Link>
+              <Link
+                to="/transactions/new"
+                className="dropdown-item"
+                onClick={() => setDesktopDropdownOpen(null)}
+              >
+                <ArrowLeftRight size={16} />
+                Do Transactions
+              </Link>
+              <Link
+                to="/customers/new"
+                className="dropdown-item"
+                onClick={() => setDesktopDropdownOpen(null)}
+              >
+                <Person size={16} />
+                Add Customer
+              </Link>
+              <Link
+                to="/accounts/new"
+                className="dropdown-item"
+                onClick={() => setDesktopDropdownOpen(null)}
+              >
+                <Bank2 size={16} />
+                Open Account
+              </Link>
+              <Link
+                to="/transactions/new"
+                className="dropdown-item"
+                onClick={() => setDesktopDropdownOpen(null)}
+              >
                 <CreditCard size={16} />
-                Open New Account
-              </Link>
-            </div>
-          </div>
-
-          <div className="nav-dropdown">
-            <button className="nav-link dropdown-toggle">
-              <ArrowLeftRight size={18} />
-              <span>Transactions</span>
-            </button>
-            <div className="dropdown-menu">
-              <Link to="/transactions" className="dropdown-item">
-                <ArrowLeftRight size={16} />
-                View All Transactions
-              </Link>
-              <Link to="/transactions/new" className="dropdown-item">
-                <ArrowLeftRight size={16} />
                 New Transaction
+              </Link>
+            </div>
+          </div>
+
+          {/* Trading Dropdown */}
+          <div
+            className={`nav-dropdown ${
+              desktopDropdownOpen === "trading" ? "open" : ""
+            }`}
+          >
+            <button
+              className="nav-link dropdown-toggle"
+              onClick={() => toggleDesktopDropdown("trading")}
+            >
+              <GraphUp size={18} />
+              <span>Trading</span>
+              <ChevronDown size={14} className="chevron-icon" />
+            </button>
+            <div className="dropdown-menu">
+              <Link
+                to="/trading"
+                className="dropdown-item"
+                onClick={() => setDesktopDropdownOpen(null)}
+              >
+                <GraphUp size={16} />
+                Trading
+              </Link>
+              <Link
+                to="/portfolio"
+                className="dropdown-item"
+                onClick={() => setDesktopDropdownOpen(null)}
+              >
+                <CreditCard size={16} />
+                Portfolio
+              </Link>
+              <Link
+                to="/funding"
+                className="dropdown-item"
+                onClick={() => setDesktopDropdownOpen(null)}
+              >
+                <CreditCard size={16} />
+                Deposit
+              </Link>
+              <Link
+                to="/trade-history"
+                className="dropdown-item"
+                onClick={() => setDesktopDropdownOpen(null)}
+              >
+                <ArrowLeftRight size={16} />
+                Trade History
               </Link>
             </div>
           </div>
@@ -111,14 +180,6 @@ const Navigation = ({ onToggleSidebar }) => {
               <button onClick={handleLogout} className="nav-link logout-btn">
                 <BoxArrowRight size={18} />
                 <span>Logout</span>
-              </button>
-
-              {/* Mobile sidebar toggle */}
-              <button
-                className="menu-toggle d-lg-none"
-                onClick={onToggleSidebar}
-              >
-                <List size={24} />
               </button>
             </>
           ) : (
@@ -147,86 +208,64 @@ const Navigation = ({ onToggleSidebar }) => {
       {/* Mobile Navigation Menu */}
       {mobileMenuOpen && (
         <div className="mobile-menu">
-          <Link
-            to="/"
-            className="mobile-nav-link"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Dashboard
-          </Link>
-
+          {/* Banking Dropdown */}
           <div className="mobile-dropdown">
             <button
               className="mobile-dropdown-toggle"
-              onClick={() => toggleDropdown("customers")}
+              onClick={() => toggleMobileDropdown("banking")}
             >
-              <PeopleFill size={18} />
-              <span>Customers</span>
+              <Bank2 size={18} />
+              <span>Banking</span>
+              <ChevronDown
+                size={14}
+                className={`chevron-icon ${
+                  mobileDropdownOpen === "banking" ? "open" : ""
+                }`}
+              />
             </button>
-            {dropdownOpen === "customers" && (
-              <div className="mobile-dropdown-menu">
-                <Link
-                  to="/customers"
-                  className="mobile-dropdown-item"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  View All Customers
-                </Link>
-                <Link
-                  to="/customers/new"
-                  className="mobile-dropdown-item"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Add New Customer
-                </Link>
-              </div>
-            )}
-          </div>
-
-          <div className="mobile-dropdown">
-            <button
-              className="mobile-dropdown-toggle"
-              onClick={() => toggleDropdown("accounts")}
-            >
-              <CreditCard size={18} />
-              <span>Accounts</span>
-            </button>
-            {dropdownOpen === "accounts" && (
+            {mobileDropdownOpen === "banking" && (
               <div className="mobile-dropdown-menu">
                 <Link
                   to="/accounts"
                   className="mobile-dropdown-item"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  View All Accounts
+                  View Account
+                </Link>
+                <Link
+                  to="/customers"
+                  className="mobile-dropdown-item"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  View Customers
+                </Link>
+                <Link
+                  to="/transactions"
+                  className="mobile-dropdown-item"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  View Transactions
+                </Link>
+                <Link
+                  to="/transactions/new"
+                  className="mobile-dropdown-item"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Do Transactions
+                </Link>
+                <Link
+                  to="/customers/new"
+                  className="mobile-dropdown-item"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Add Customer
                 </Link>
                 <Link
                   to="/accounts/new"
                   className="mobile-dropdown-item"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Open New Account
-                </Link>
-              </div>
-            )}
-          </div>
-
-          <div className="mobile-dropdown">
-            <button
-              className="mobile-dropdown-toggle"
-              onClick={() => toggleDropdown("transactions")}
-            >
-              <ArrowLeftRight size={18} />
-              <span>Transactions</span>
-            </button>
-            {dropdownOpen === "transactions" && (
-              <div className="mobile-dropdown-menu">
-                <Link
-                  to="/transactions"
-                  className="mobile-dropdown-item"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  View All Transactions
+                  Open Account
                 </Link>
                 <Link
                   to="/transactions/new"
@@ -234,6 +273,55 @@ const Navigation = ({ onToggleSidebar }) => {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   New Transaction
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Trading Dropdown */}
+          <div className="mobile-dropdown">
+            <button
+              className="mobile-dropdown-toggle"
+              onClick={() => toggleMobileDropdown("trading")}
+            >
+              <GraphUp size={18} />
+              <span>Trading</span>
+              <ChevronDown
+                size={14}
+                className={`chevron-icon ${
+                  mobileDropdownOpen === "trading" ? "open" : ""
+                }`}
+              />
+            </button>
+            {mobileDropdownOpen === "trading" && (
+              <div className="mobile-dropdown-menu">
+                <Link
+                  to="/trading"
+                  className="mobile-dropdown-item"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Trading
+                </Link>
+                <Link
+                  to="/portfolio"
+                  className="mobile-dropdown-item"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Portfolio
+                </Link>
+                <Link
+                  to="/funding"
+                  className="mobile-dropdown-item"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Deposit
+                </Link>
+                <Link
+                  to="/trade-history"
+                  className="mobile-dropdown-item"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Trade History
                 </Link>
               </div>
             )}

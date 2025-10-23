@@ -10,6 +10,7 @@ import {
 } from "react-bootstrap";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { API_BASE_URL } from "../config/api";
 import { GlassCard } from "./ui/GlassCard";
 import { GlassButton } from "./ui/GlassButton";
 
@@ -26,8 +27,6 @@ const Trading = () => {
   const [userBalance, setUserBalance] = useState(0);
   const [showTradeModal, setShowTradeModal] = useState(false);
 
-  const API_BASE_URL =
-    import.meta.env.VITE_API_URL || "http://localhost:8080/api";
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
 

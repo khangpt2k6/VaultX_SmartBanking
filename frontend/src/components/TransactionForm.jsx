@@ -3,6 +3,7 @@ import { Spinner, Row, Col, Container } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { API_BASE_URL } from "../config/api";
 import { GlassForm, GlassInput, GlassSelect } from "./ui/GlassForm";
 import { GlassButton } from "./ui/GlassButton";
 
@@ -31,9 +32,7 @@ const TransactionForm = () => {
 
   const fetchAccounts = async () => {
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/accounts`
-      );
+      const response = await axios.get(`${API_BASE_URL}/accounts`);
       setAccounts(response.data);
     } catch (error) {
       console.error("Error fetching accounts:", error);
@@ -81,16 +80,10 @@ const TransactionForm = () => {
 
     try {
       if (isEdit) {
-        await axios.put(
-          `${import.meta.env.VITE_API_URL}/api/transactions/${id}`,
-          formData
-        );
+        await axios.put(`${API_BASE_URL}/transactions/${id}`, formData);
         toast.success("Transaction updated successfully");
       } else {
-        await axios.post(
-          `${import.meta.env.VITE_API_URL}/api/transactions`,
-          formData
-        );
+        await axios.post(`${API_BASE_URL}/transactions`, formData);
         toast.success("Transaction created successfully");
       }
       navigate("/transactions");

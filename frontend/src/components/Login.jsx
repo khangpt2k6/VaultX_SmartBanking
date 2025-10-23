@@ -3,6 +3,7 @@ import { Spinner } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { API_BASE_URL } from "../config/api";
 import { GlassForm, GlassInput } from "./ui/GlassForm";
 import { GlassButton } from "./ui/GlassButton";
 
@@ -28,10 +29,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/auth/login`,
-        formData
-      );
+      const response = await axios.post(`${API_BASE_URL}/auth/login`, formData);
       const { token, user } = response.data;
 
       localStorage.setItem("token", token);

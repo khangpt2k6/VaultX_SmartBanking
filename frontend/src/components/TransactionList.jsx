@@ -18,6 +18,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { API_BASE_URL } from "../config/api";
 
 const TransactionList = () => {
   const [transactions, setTransactions] = useState([]);
@@ -40,9 +41,7 @@ const TransactionList = () => {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/transactions`
-      );
+      const response = await axios.get(`${API_BASE_URL}/transactions`);
       setTransactions(response.data);
     } catch (error) {
       console.error("Error fetching transactions:", error);
@@ -85,9 +84,7 @@ const TransactionList = () => {
   const confirmDelete = async () => {
     try {
       await axios.delete(
-        `${import.meta.env.VITE_API_URL}/api/transactions/${
-          transactionToDelete.transactionId
-        }`
+        `${API_BASE_URL}/transactions/${transactionToDelete.transactionId}`
       );
       toast.success("Transaction deleted successfully");
       fetchTransactions();

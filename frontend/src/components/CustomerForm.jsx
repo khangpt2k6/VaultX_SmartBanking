@@ -3,6 +3,7 @@ import { Spinner, Row, Col, Container } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { API_BASE_URL } from "../config/api";
 import { GlassForm, GlassInput } from "./ui/GlassForm";
 import { GlassButton } from "./ui/GlassButton";
 
@@ -56,16 +57,10 @@ const CustomerForm = () => {
 
     try {
       if (isEdit) {
-        await axios.put(
-          `${import.meta.env.VITE_API_URL}/api/customers/${id}`,
-          formData
-        );
+        await axios.put(`${API_BASE_URL}/customers/${id}`, formData);
         toast.success("Customer updated successfully");
       } else {
-        await axios.post(
-          `${import.meta.env.VITE_API_URL}/api/customers`,
-          formData
-        );
+        await axios.post(`${API_BASE_URL}/customers`, formData);
         toast.success("Customer created successfully");
       }
       navigate("/customers");

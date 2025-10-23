@@ -3,6 +3,7 @@ import { Spinner, Row, Col, Container } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { API_BASE_URL } from "../config/api";
 import { GlassForm, GlassInput, GlassSelect } from "./ui/GlassForm";
 import { GlassButton } from "./ui/GlassButton";
 
@@ -32,9 +33,7 @@ const AccountForm = () => {
 
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/customers`
-      );
+      const response = await axios.get(`${API_BASE_URL}/customers`);
       setCustomers(response.data);
     } catch (error) {
       console.error("Error fetching customers:", error);
@@ -79,16 +78,10 @@ const AccountForm = () => {
       console.log("📤 Sending account data:", accountData);
 
       if (isEdit) {
-        await axios.put(
-          `${import.meta.env.VITE_API_URL}/api/accounts/${id}`,
-          accountData
-        );
+        await axios.put(`${API_BASE_URL}/accounts/${id}`, accountData);
         toast.success("Account updated successfully");
       } else {
-        await axios.post(
-          `${import.meta.env.VITE_API_URL}/api/accounts`,
-          accountData
-        );
+        await axios.post(`${API_BASE_URL}/accounts`, accountData);
         toast.success("Account created successfully");
       }
       navigate("/accounts");

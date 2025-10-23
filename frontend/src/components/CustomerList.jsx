@@ -18,6 +18,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { API_BASE_URL } from "../config/api";
 import { GlassCard } from "./ui/GlassCard";
 import { GlassButton } from "./ui/GlassButton";
 
@@ -42,9 +43,7 @@ const CustomerList = () => {
   const fetchCustomers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/customers`
-      );
+      const response = await axios.get(`${API_BASE_URL}/customers`);
       setCustomers(response.data);
     } catch (error) {
       console.error("Error fetching customers:", error);
@@ -78,9 +77,7 @@ const CustomerList = () => {
   const confirmDelete = async () => {
     try {
       await axios.delete(
-        `${import.meta.env.VITE_API_URL}/api/customers/${
-          customerToDelete.customerId
-        }`
+        `${API_BASE_URL}/customers/${customerToDelete.customerId}`
       );
       toast.success("Customer deleted successfully");
       fetchCustomers();

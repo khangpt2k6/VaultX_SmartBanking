@@ -11,6 +11,7 @@ import { Pencil, Trash, Eye, Plus, Search, Bank2 } from "react-bootstrap-icons";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { API_BASE_URL } from "../config/api";
 
 const AccountList = () => {
   const [accounts, setAccounts] = useState([]);
@@ -42,14 +43,11 @@ const AccountList = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/accounts`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.get(`${API_BASE_URL}/accounts`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       // Handle both array and object responses
       let accountsData = [];
@@ -118,9 +116,7 @@ const AccountList = () => {
   const confirmDelete = async () => {
     try {
       await axios.delete(
-        `${import.meta.env.VITE_API_URL}/api/accounts/${
-          accountToDelete.accountId
-        }`
+        `${API_BASE_URL}/accounts/${accountToDelete.accountId}`
       );
       toast.success("Account deleted successfully");
       fetchAccounts();
