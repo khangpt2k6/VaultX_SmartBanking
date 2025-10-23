@@ -40,7 +40,6 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
       >
         {/* Sidebar Header */}
         <div className="sidebar-header">
-          {!isCollapsed && <h5>Quick Actions</h5>}
           <div className="sidebar-controls">
             <button
               className="sidebar-btn d-none d-lg-flex"

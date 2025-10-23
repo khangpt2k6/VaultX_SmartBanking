@@ -52,7 +52,7 @@ export const StatCard = ({
       <div className="stat-header">
         {Icon && (
           <div className="stat-icon">
-            <Icon size={24} />
+            <Icon size={24} color="white" />
           </div>
         )}
         {badge && <span className="badge-glass">{badge}</span>}

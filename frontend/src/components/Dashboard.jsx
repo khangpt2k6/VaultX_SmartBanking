@@ -6,14 +6,10 @@ import {
   CashStack,
   GraphUp,
   Shield,
-  Activity,
-  Database,
-  Lock,
-  Clock,
 } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { StatCard, GlassCard } from "./ui/GlassCard";
+import { StatCard } from "./ui/GlassCard";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -107,7 +103,7 @@ const Dashboard = () => {
           </p>
         </div>
         <div className="d-flex align-items-center gap-2">
-          <Shield size={20} />
+          <Shield size={20} color="white" />
           <span className="badge-glass">System Online</span>
         </div>
       </div>
@@ -148,89 +144,6 @@ const Dashboard = () => {
             value={formatNumber(stats.totalTransactions)}
             badge="This Month"
           />
-        </Col>
-      </Row>
-
-      {/* Activity and Status Section */}
-      <Row className="mb-5 g-3 activity-row">
-        <Col xl={6} lg={12}>
-          <GlassCard size="lg">
-            <div className="d-flex align-items-center gap-2 mb-4 pb-3 border-bottom border-secondary">
-              <Activity size={18} />
-              <h5 className="mb-0 text-white">System Activity</h5>
-            </div>
-            <div className="d-flex justify-content-between align-items-center mb-3 p-2">
-              <div className="d-flex align-items-center gap-2">
-                <PeopleFill size={16} />
-                <span className="small text-white">Total Customers</span>
-              </div>
-              <span className="badge-glass">
-                {formatNumber(stats.totalCustomers)}
-              </span>
-            </div>
-            <div className="d-flex justify-content-between align-items-center mb-3 p-2">
-              <div className="d-flex align-items-center gap-2">
-                <Bank2 size={16} />
-                <span className="small text-white">Total Accounts</span>
-              </div>
-              <span className="badge-glass">
-                {formatNumber(stats.totalAccounts)}
-              </span>
-            </div>
-            <div className="d-flex justify-content-between align-items-center mb-3 p-2">
-              <div className="d-flex align-items-center gap-2">
-                <GraphUp size={16} />
-                <span className="small text-white">Monthly Transactions</span>
-              </div>
-              <span className="badge-glass">
-                {formatNumber(stats.monthlyTransactions || 0)}
-              </span>
-            </div>
-            <div className="d-flex justify-content-between align-items-center p-2">
-              <div className="d-flex align-items-center gap-2">
-                <Shield size={16} />
-                <span className="small text-white">System Status</span>
-              </div>
-              <span className="badge-glass">Online</span>
-            </div>
-          </GlassCard>
-        </Col>
-
-        <Col xl={6} lg={12}>
-          <GlassCard size="lg">
-            <div className="d-flex align-items-center gap-2 mb-4 pb-3 border-bottom border-secondary">
-              <Database size={18} />
-              <h5 className="mb-0 text-white">System Health</h5>
-            </div>
-            <div className="d-flex justify-content-between align-items-center mb-3 p-2">
-              <div className="d-flex align-items-center gap-2">
-                <Database size={16} />
-                <span className="small text-white">Database</span>
-              </div>
-              <span className="badge-glass">Online</span>
-            </div>
-            <div className="d-flex justify-content-between align-items-center mb-3 p-2">
-              <div className="d-flex align-items-center gap-2">
-                <Activity size={16} />
-                <span className="small text-white">API Services</span>
-              </div>
-              <span className="badge-glass">Running</span>
-            </div>
-            <div className="d-flex justify-content-between align-items-center mb-3 p-2">
-              <div className="d-flex align-items-center gap-2">
-                <Lock size={16} />
-                <span className="small text-white">Security</span>
-              </div>
-              <span className="badge-glass">Active</span>
-            </div>
-            <div className="d-flex justify-content-between align-items-center p-2">
-              <div className="d-flex align-items-center gap-2">
-                <Clock size={16} />
-                <span className="small text-white">Last Backup</span>
-              </div>
-              <span className="badge-glass">2 hours ago</span>
-            </div>
-          </GlassCard>
         </Col>
       </Row>
     </Container>
