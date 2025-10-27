@@ -1,0 +1,34 @@
+name: Backend Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-tests.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Run Maven tests
+      working-directory: ./backend
+      run: mvn clean test
+
+    - name: Build with Maven
+      working-directory: ./backend
+      run: mvn clean package -DskipTests
