@@ -192,6 +192,17 @@ code {
   position: relative;
   z-index: 2;
   transition: margin-left 0.3s ease;
+  margin-left: 0;
+}
+
+.main-content.auth-layout {
+  padding: 0;
+  margin-top: 0;
+}
+
+.main-content.auth-layout .container-fluid {
+  padding: 0;
+  margin-top: 0;
 }
 
 .container-fluid {
@@ -258,12 +269,9 @@ code {
     margin-top: 80px;
   }
 
-  .main-content {
-    margin-left: 280px;
-  }
-
+  .main-content.with-sidebar,
   .main-content.sidebar-content {
-    transition: margin-left 0.3s ease;
+    margin-left: 280px;
   }
 }
 

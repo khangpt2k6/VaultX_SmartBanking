@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -15,30 +15,43 @@ import TransactionList from "./components/TransactionList";
 import TransactionForm from "./components/TransactionForm";
 import Login from "./components/Login";
 import Register from "./components/Register";
+import Welcome from "./components/Welcome";
 import Trading from "./components/Trading";
 import Portfolio from "./components/Portfolio";
 import Funding from "./components/Funding";
 import TradeHistory from "./components/TradeHistory";
 
-function App() {
-  const isAuthenticated = localStorage.getItem("token");
+function AppContent() {
+  const location = useLocation();
+  const isAuthPage = ["/login", "/register", "/welcome"].includes(location.pathname);
 
   return (
-    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <div className="App">
-        <Navigation />
+    <div className="App">
+      <Navigation />
 
-        {/* Main Content */}
-        <div className="main-content">
+      {/* Main Content */}
+      <div className={`main-content ${isAuthPage ? "auth-layout" : ""}`}>
+        {isAuthPage ? (
+          <Routes>
+            {/* Public routes - no container wrapper */}
+            <Route path="/welcome" element={<Welcome />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+          </Routes>
+        ) : (
           <div className="container-fluid mt-4">
             <Routes>
-              {/* Public routes */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-
               {/* Protected routes */}
               <Route
                 path="/"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard"
                 element={
                   <ProtectedRoute>
                     <Dashboard />
@@ -145,9 +158,17 @@ function App() {
               />
             </Routes>
           </div>
-        </div>
-        <ToastContainer position="top-right" autoClose={3000} />
+        )}
       </div>
+      <ToastContainer position="top-right" autoClose={3000} />
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <AppContent />
     </Router>
   );
 }
