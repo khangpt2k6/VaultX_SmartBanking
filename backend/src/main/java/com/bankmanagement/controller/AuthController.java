@@ -140,6 +140,12 @@ public class AuthController {
             String email = loginData.get("email");
             String password = loginData.get("password");
 
+            System.out.println("=== LOGIN REQUEST DEBUG ===");
+            System.out.println("Email from request: " + email);
+            System.out.println("Password from request: " + (password != null ? "*** (length: " + password.length() + ")" : "NULL"));
+            System.out.println("Full loginData: " + loginData);
+            System.out.println("===========================");
+
             if (email == null || email.trim().isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
@@ -153,8 +159,8 @@ public class AuthController {
                 ));
             }
 
-            // Authenticate user by email and password
-            Optional<User> authenticatedUser = userService.authenticateByEmail(email, password);
+            // Authenticate user by email and password (trim email for consistency)
+            Optional<User> authenticatedUser = userService.authenticateByEmail(email.trim(), password);
 
             if (authenticatedUser.isPresent()) {
                 User user = authenticatedUser.get();
