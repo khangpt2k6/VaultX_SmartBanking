@@ -2,37 +2,39 @@ spring:
   application:
     name: bank-management-system
 
+  # Use H2 in-memory database if DATABASE_URL is not set (for local development)
   datasource:
-    url: ${DATABASE_URL}?sslmode=require&tcpKeepAlives=true&socketTimeout=30
-    username: ${DATABASE_USERNAME}
-    password: ${DATABASE_PASSWORD}
-    driver-class-name: org.postgresql.Driver
+    url: ${DATABASE_URL:jdbc:h2:mem:vaultxdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE}
+    username: ${DATABASE_USERNAME:sa}
+    password: ${DATABASE_PASSWORD:}
+    driver-class-name: ${DATABASE_DRIVER:org.h2.Driver}
     hikari:
       maximum-pool-size: 5
       minimum-idle: 2
-      connection-timeout: 60000
+      connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1200000
       leak-detection-threshold: 120000
       auto-commit: true
-      connection-test-query: "SELECT 1"
-      data-source-properties:
-        sslmode: require
-        tcpKeepAlives: true
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: ${HIBERNATE_DDL_AUTO:update}
     show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        dialect: ${HIBERNATE_DIALECT:org.hibernate.dialect.H2Dialect}
         format_sql: true
         jdbc:
           time_zone: UTC
         connection:
           provider_disables_autocommit: false
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    database-platform: ${HIBERNATE_DIALECT:org.hibernate.dialect.H2Dialect}
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
 
   security:
     user:
@@ -72,5 +74,5 @@ logging:
 
 # JWT Configuration
 jwt:
-  secret: ${JWT_SECRET}
+  secret: ${JWT_SECRET:dev-secret-key-change-in-production-minimum-256-bits-long}
   expiration: 86400000 # 24 hours in milliseconds
