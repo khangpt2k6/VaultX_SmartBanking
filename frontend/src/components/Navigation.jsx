@@ -41,7 +41,7 @@ const Navigation = () => {
       <div className="navbar-container">
         {/* Logo */}
         <Link to="/" className="navbar-brand">
-          <GraphUp size={28} />
+          <div className="navbar-logo-icon">V</div>
           <span>VaultX</span>
         </Link>
 
@@ -52,14 +52,15 @@ const Navigation = () => {
             className={`nav-dropdown ${
               desktopDropdownOpen === "banking" ? "open" : ""
             }`}
+            onMouseLeave={() => setDesktopDropdownOpen(null)}
           >
             <button
               className="nav-link dropdown-toggle"
               onClick={() => toggleDesktopDropdown("banking")}
+              onMouseEnter={() => setDesktopDropdownOpen("banking")}
             >
-              <Bank2 size={18} />
               <span>Banking</span>
-              <ChevronDown size={14} className="chevron-icon" />
+              <ChevronDown size={12} className="chevron-icon" />
             </button>
             <div className="dropdown-menu">
               <Link
@@ -126,14 +127,15 @@ const Navigation = () => {
             className={`nav-dropdown ${
               desktopDropdownOpen === "trading" ? "open" : ""
             }`}
+            onMouseLeave={() => setDesktopDropdownOpen(null)}
           >
             <button
               className="nav-link dropdown-toggle"
               onClick={() => toggleDesktopDropdown("trading")}
+              onMouseEnter={() => setDesktopDropdownOpen("trading")}
             >
-              <GraphUp size={18} />
               <span>Trading</span>
-              <ChevronDown size={14} className="chevron-icon" />
+              <ChevronDown size={12} className="chevron-icon" />
             </button>
             <div className="dropdown-menu">
               <Link
@@ -178,19 +180,17 @@ const Navigation = () => {
             <>
               {/* Desktop Auth */}
               <button onClick={handleLogout} className="nav-link logout-btn">
-                <BoxArrowRight size={18} />
+                <BoxArrowRight size={16} />
                 <span>Logout</span>
               </button>
             </>
           ) : (
             <>
-              <Link to="/login" className="nav-link">
-                <Person size={18} />
-                <span>Login</span>
+              <Link to="/login" className="navbar-login-link">
+                Login
               </Link>
-              <Link to="/register" className="nav-link">
-                <PersonPlus size={18} />
-                <span>Register</span>
+              <Link to="/register" className="navbar-register-btn">
+                Register
               </Link>
             </>
           )}

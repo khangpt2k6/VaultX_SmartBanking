@@ -211,7 +211,7 @@ code {
   padding-right: 20px;
   position: relative;
   z-index: 2;
-  margin-top: 80px;
+  margin-top: 64px;
 }
 
 .sidebar-content {
@@ -266,7 +266,7 @@ code {
     padding-top: 20px;
     padding-left: 20px;
     padding-right: 20px;
-    margin-top: 80px;
+    margin-top: 64px;
   }
 
   .main-content.with-sidebar,
@@ -280,7 +280,7 @@ code {
     padding-top: 20px;
     padding-left: 15px;
     padding-right: 15px;
-    margin-top: 70px;
+    margin-top: 62px;
   }
 
   .main-content {
@@ -293,7 +293,7 @@ code {
     padding-top: 20px;
     padding-left: 15px;
     padding-right: 15px;
-    margin-top: 70px;
+    margin-top: 62px;
   }
 
   .navbar-glass {
@@ -322,7 +322,7 @@ code {
     padding-top: 20px;
     padding-left: 10px;
     padding-right: 10px;
-    margin-top: 70px;
+    margin-top: 60px;
   }
 
   .navbar-glass {
