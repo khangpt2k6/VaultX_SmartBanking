@@ -25,11 +25,32 @@ public class JwtUtil {
     private long jwtExpiration; // Default: 24 hours
     
     /**
+     * Get or create a secure key for HS512 algorithm (requires minimum 64 bytes)
+     */
+    private SecretKey getSigningKey() {
+        byte[] keyBytes = jwtSecret.getBytes();
+        
+        // HS512 requires minimum 64 bytes (512 bits)
+        if (keyBytes.length < 64) {
+            // Pad the key to 64 bytes if it's too short
+            byte[] paddedKey = new byte[64];
+            System.arraycopy(keyBytes, 0, paddedKey, 0, keyBytes.length);
+            // Fill remaining bytes with the original key repeated
+            for (int i = keyBytes.length; i < 64; i++) {
+                paddedKey[i] = keyBytes[i % keyBytes.length];
+            }
+            return Keys.hmacShaKeyFor(paddedKey);
+        }
+        
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+    
+    /**
      * Generate JWT token with userId, email, and roles
      */
     public String generateToken(Long userId, String email, List<String> roles) {
         try {
-            SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+            SecretKey key = getSigningKey();
             
             return Jwts.builder()
                     .setSubject(email)
@@ -41,7 +62,7 @@ public class JwtUtil {
                     .signWith(key, SignatureAlgorithm.HS512)
                     .compact();
         } catch (Exception e) {
-            logger.error("Error generating JWT token: {}", e.getMessage());
+            logger.error("Error generating JWT token: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to generate JWT token", e);
         }
     }
@@ -51,7 +72,7 @@ public class JwtUtil {
      */
     public String getEmailFromToken(String token) {
         try {
-            SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+            SecretKey key = getSigningKey();
             return Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
@@ -77,7 +98,7 @@ public class JwtUtil {
      */
     public Long getUserIdFromToken(String token) {
         try {
-            SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+            SecretKey key = getSigningKey();
             Object userId = Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
@@ -97,7 +118,7 @@ public class JwtUtil {
     @SuppressWarnings("unchecked")
     public List<String> getRolesFromToken(String token) {
         try {
-            SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+            SecretKey key = getSigningKey();
             return (List<String>) Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
@@ -115,7 +136,7 @@ public class JwtUtil {
      */
     public boolean validateToken(String token) {
         try {
-            SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+            SecretKey key = getSigningKey();
             Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
