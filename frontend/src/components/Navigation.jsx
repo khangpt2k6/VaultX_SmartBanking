@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { createPortal } from "react-dom";
 import {
   GraphUp,
   Bank2,
@@ -19,7 +20,13 @@ const Navigation = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [desktopDropdownOpen, setDesktopDropdownOpen] = useState(null);
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState(null);
-  const [isClicking, setIsClicking] = useState(false);
+  const dropdownRef = useRef(null);
+  const bankingButtonRef = useRef(null);
+  const tradingButtonRef = useRef(null);
+  const bankingMenuRef = useRef(null);
+  const tradingMenuRef = useRef(null);
+  const [bankingMenuPosition, setBankingMenuPosition] = useState({ top: 0, left: 0 });
+  const [tradingMenuPosition, setTradingMenuPosition] = useState({ top: 0, left: 0 });
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -30,11 +37,81 @@ const Navigation = () => {
   const isAuthenticated = localStorage.getItem("token");
 
   const toggleDesktopDropdown = (name) => {
-    setIsClicking(true);
     setDesktopDropdownOpen(desktopDropdownOpen === name ? null : name);
-    // Reset clicking flag after a short delay
-    setTimeout(() => setIsClicking(false), 200);
   };
+
+  // Calculate dropdown positions
+  const updateDropdownPositions = () => {
+    if (desktopDropdownOpen === "banking" && bankingButtonRef.current) {
+      const rect = bankingButtonRef.current.getBoundingClientRect();
+      setBankingMenuPosition({
+        top: rect.bottom + 8,
+        left: rect.left,
+      });
+    }
+    if (desktopDropdownOpen === "trading" && tradingButtonRef.current) {
+      const rect = tradingButtonRef.current.getBoundingClientRect();
+      setTradingMenuPosition({
+        top: rect.bottom + 8,
+        left: rect.left,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (desktopDropdownOpen) {
+      // Use requestAnimationFrame to ensure DOM is ready
+      requestAnimationFrame(() => {
+        updateDropdownPositions();
+      });
+      
+      // Also update after a small delay to ensure everything is rendered
+      const timeoutId = setTimeout(() => {
+        updateDropdownPositions();
+      }, 10);
+      
+      // Update positions on scroll and resize
+      window.addEventListener('scroll', updateDropdownPositions, true);
+      window.addEventListener('resize', updateDropdownPositions);
+      
+      return () => {
+        clearTimeout(timeoutId);
+        window.removeEventListener('scroll', updateDropdownPositions, true);
+        window.removeEventListener('resize', updateDropdownPositions);
+      };
+    }
+  }, [desktopDropdownOpen]);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    if (!desktopDropdownOpen) return;
+
+    const handleClickOutside = (event) => {
+      const target = event.target;
+      // Don't close if clicking on a dropdown toggle button
+      if (target.closest('.dropdown-toggle')) {
+        return;
+      }
+      // Don't close if clicking inside the dropdown menu
+      if (
+        (bankingMenuRef.current && bankingMenuRef.current.contains(target)) ||
+        (tradingMenuRef.current && tradingMenuRef.current.contains(target))
+      ) {
+        return;
+      }
+      setDesktopDropdownOpen(null);
+    };
+
+    // Use a small delay to let the button click handler run first
+    const timeoutId = setTimeout(() => {
+      document.addEventListener("click", handleClickOutside, true);
+    }, 0);
+    
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener("click", handleClickOutside, true);
+    };
+  }, [desktopDropdownOpen]);
 
   const toggleMobileDropdown = (name) => {
     setMobileDropdownOpen(mobileDropdownOpen === name ? null : name);
@@ -50,20 +127,19 @@ const Navigation = () => {
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="navbar-menu-desktop">
+        <div className="navbar-menu-desktop" ref={dropdownRef}>
           {/* Banking Dropdown */}
           <div
             className={`nav-dropdown ${
               desktopDropdownOpen === "banking" ? "open" : ""
             }`}
             onMouseLeave={() => {
-              // Don't close if user just clicked (prevents immediate close on click)
-              if (!isClicking) {
-                setDesktopDropdownOpen(null);
-              }
+              setDesktopDropdownOpen(null);
             }}
           >
             <button
+              ref={bankingButtonRef}
+              type="button"
               className="nav-link dropdown-toggle"
               onClick={(e) => {
                 e.preventDefault();
@@ -71,19 +147,35 @@ const Navigation = () => {
                 toggleDesktopDropdown("banking");
               }}
               onMouseEnter={() => {
-                if (desktopDropdownOpen !== "banking") {
-                  setDesktopDropdownOpen("banking");
-                }
+                setDesktopDropdownOpen("banking");
               }}
             >
               <span>Banking</span>
               <ChevronDown size={12} className="chevron-icon" />
             </button>
-            <div 
-              className="dropdown-menu"
-              onMouseEnter={() => setDesktopDropdownOpen("banking")}
-              onMouseLeave={() => setDesktopDropdownOpen(null)}
-            >
+            {desktopDropdownOpen === "banking" && bankingMenuPosition.top > 0 && createPortal(
+              <div 
+                ref={bankingMenuRef}
+                className="dropdown-menu"
+                style={{
+                  position: 'fixed',
+                  top: `${bankingMenuPosition.top}px`,
+                  left: `${bankingMenuPosition.left}px`,
+                  zIndex: 1004,
+                  opacity: 1,
+                  visibility: 'visible',
+                  display: 'block',
+                }}
+                onMouseEnter={() => setDesktopDropdownOpen("banking")}
+                onMouseLeave={(e) => {
+                  // Don't close if moving to button
+                  const relatedTarget = e.relatedTarget;
+                  if (relatedTarget && bankingButtonRef.current && bankingButtonRef.current.contains(relatedTarget)) {
+                    return;
+                  }
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
               {/* View Section */}
               <div className="dropdown-section-divider">
                 <span className="dropdown-section-label">View</span>
@@ -140,7 +232,9 @@ const Navigation = () => {
                 <ArrowLeftRight size={16} />
                 New Transaction
               </Link>
-            </div>
+              </div>,
+              document.body
+            )}
           </div>
 
           {/* Trading Dropdown */}
@@ -149,13 +243,12 @@ const Navigation = () => {
               desktopDropdownOpen === "trading" ? "open" : ""
             }`}
             onMouseLeave={() => {
-              // Don't close if user just clicked (prevents immediate close on click)
-              if (!isClicking) {
-                setDesktopDropdownOpen(null);
-              }
+              setDesktopDropdownOpen(null);
             }}
           >
             <button
+              ref={tradingButtonRef}
+              type="button"
               className="nav-link dropdown-toggle"
               onClick={(e) => {
                 e.preventDefault();
@@ -163,19 +256,35 @@ const Navigation = () => {
                 toggleDesktopDropdown("trading");
               }}
               onMouseEnter={() => {
-                if (desktopDropdownOpen !== "trading") {
-                  setDesktopDropdownOpen("trading");
-                }
+                setDesktopDropdownOpen("trading");
               }}
             >
               <span>Trading</span>
               <ChevronDown size={12} className="chevron-icon" />
             </button>
-            <div 
-              className="dropdown-menu"
-              onMouseEnter={() => setDesktopDropdownOpen("trading")}
-              onMouseLeave={() => setDesktopDropdownOpen(null)}
-            >
+            {desktopDropdownOpen === "trading" && tradingMenuPosition.top > 0 && createPortal(
+              <div 
+                ref={tradingMenuRef}
+                className="dropdown-menu"
+                style={{
+                  position: 'fixed',
+                  top: `${tradingMenuPosition.top}px`,
+                  left: `${tradingMenuPosition.left}px`,
+                  zIndex: 1004,
+                  opacity: 1,
+                  visibility: 'visible',
+                  display: 'block',
+                }}
+                onMouseEnter={() => setDesktopDropdownOpen("trading")}
+                onMouseLeave={(e) => {
+                  // Don't close if moving to button
+                  const relatedTarget = e.relatedTarget;
+                  if (relatedTarget && tradingButtonRef.current && tradingButtonRef.current.contains(relatedTarget)) {
+                    return;
+                  }
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
               <Link
                 to="/trading"
                 className="dropdown-item"
@@ -208,7 +317,9 @@ const Navigation = () => {
                 <ArrowLeftRight size={16} />
                 Trade History
               </Link>
-            </div>
+              </div>,
+              document.body
+            )}
           </div>
         </div>
 
