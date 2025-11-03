@@ -24,40 +24,41 @@ import TradeHistory from "./components/TradeHistory";
 function AppContent() {
   const location = useLocation();
   const isAuthPage = ["/login", "/register", "/welcome"].includes(location.pathname);
+  const isDashboard = ["/", "/dashboard"].includes(location.pathname);
 
   return (
     <div className="App">
       <Navigation />
 
       {/* Main Content */}
-      <div className={`main-content ${isAuthPage ? "auth-layout" : ""}`}>
-        {isAuthPage ? (
+      <div className={`main-content ${isAuthPage || isDashboard ? "auth-layout" : ""}`}>
+        {isAuthPage || isDashboard ? (
           <Routes>
-            {/* Public routes - no container wrapper */}
+            {/* Public and Dashboard routes - no container wrapper */}
             <Route path="/welcome" element={<Welcome />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         ) : (
           <div className="container-fluid mt-4">
             <Routes>
-              {/* Protected routes */}
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
+              {/* Protected routes with container wrapper */}
               <Route
                 path="/customers"
                 element={
