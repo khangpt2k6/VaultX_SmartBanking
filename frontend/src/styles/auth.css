@@ -369,3 +369,156 @@
   }
 }
 
+/* ========================================
+   REGISTER - MULTI-STEP FORM
+   ======================================== */
+
+.register-card {
+  max-width: 540px;
+}
+
+.register-progress {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  padding-top: 0.5rem;
+}
+
+.register-progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(194, 208, 236, 0.6);
+  transition: all 0.3s ease;
+}
+
+.register-progress-dot.active {
+  background: #254a8a;
+  width: 32px;
+  border-radius: 4px;
+}
+
+.register-step {
+  animation: fadeInSlide 0.3s ease-out;
+}
+
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.register-step-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.register-step-header h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #203253;
+}
+
+.register-step-header p {
+  color: #7a87a3;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.register-step-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.register-arrow-btn {
+  width: 100%;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.auth-btn-back {
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 0.6rem 1rem;
+  background: transparent;
+  border: none;
+  color: #7a87a3;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-btn-back:hover {
+  color: #254a8a;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.register-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.register-submit-btn {
+  width: 100%;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .register-card {
+    max-width: 100%;
+  }
+
+  .register-step-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .register-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .register-progress-dot.active {
+    width: 24px;
+  }
+}
+
+@media (max-width: 576px) {
+  .register-step-header h2 {
+    font-size: 1.35rem;
+  }
+
+  .register-progress {
+    margin-bottom: 1.5rem;
+  }
+
+  .register-progress-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .register-progress-dot.active {
+    width: 20px;
+    height: 6px;
+  }
+}
+

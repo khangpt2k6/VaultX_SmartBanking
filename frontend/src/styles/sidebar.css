@@ -144,6 +144,17 @@
   margin-bottom: 0.5rem;
 }
 
+.sidebar-subtitle {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 0 1rem;
+  margin-bottom: 0.4rem;
+  margin-top: 0.75rem;
+}
+
 /* Sidebar Items */
 .sidebar-items {
   display: flex;
