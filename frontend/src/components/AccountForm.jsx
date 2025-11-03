@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Spinner, Row, Col, Container, Card, Button, Form } from "react-bootstrap";
+import { Bank2, PlusCircle, ArrowLeft, Save } from "react-bootstrap-icons";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { API_BASE_URL } from "../config/api";
-import { GlassForm, GlassInput, GlassSelect } from "./ui/GlassForm";
-import { GlassButton } from "./ui/GlassButton";
 
 const AccountForm = () => {
   const [formData, setFormData] = useState({
@@ -82,15 +81,12 @@ const AccountForm = () => {
     setLoading(true);
 
     try {
-      // Convert data to match backend expectations
       const accountData = {
         ...formData,
         balance: parseFloat(formData.balance),
         interestRate: parseFloat(formData.interestRate),
         customerId: parseInt(formData.customerId),
       };
-
-      console.log("📤 Sending account data:", accountData);
 
       const token = localStorage.getItem("token");
       const headers = {
@@ -120,150 +116,229 @@ const AccountForm = () => {
 
   if (loading && isEdit) {
     return (
-      <div className="text-center mt-5">
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </Spinner>
-      </div>
+      <Container fluid className="py-5" style={{ maxWidth: "900px" }}>
+        <div className="text-center py-5">
+          <Spinner animation="border" role="status" style={{ color: "var(--primary-blue)" }}>
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+        </div>
+      </Container>
     );
   }
 
   return (
-    <div className="row justify-content-center">
-      <div className="col-md-8">
-        <Card>
-          <Card.Header>
-            <h4>{isEdit ? "Edit Account" : "Open New Account"}</h4>
-          </Card.Header>
-          <Card.Body>
-            <Form onSubmit={handleSubmit}>
-              <div className="row">
-                <div className="col-md-6">
-                  <Form.Group className="mb-3">
-                    <Form.Label>Account Number *</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="accountNumber"
-                      value={formData.accountNumber}
-                      onChange={handleChange}
-                      required
-                      disabled={isEdit}
-                    />
-                  </Form.Group>
-                </div>
-                <div className="col-md-6">
-                  <Form.Group className="mb-3">
-                    <Form.Label>Account Type *</Form.Label>
-                    <Form.Select
-                      name="accountType"
-                      value={formData.accountType}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value="SAVINGS">Savings</option>
-                      <option value="CHECKING">Checking</option>
-                      <option value="FIXED_DEPOSIT">Fixed Deposit</option>
-                    </Form.Select>
-                  </Form.Group>
-                </div>
-              </div>
+    <Container fluid className="py-4" style={{ maxWidth: "900px", background: "var(--gradient-background)", minHeight: "100vh" }}>
+      {/* Header */}
+      <Row className="mb-5">
+        <Col>
+          <div className="d-flex align-items-center gap-3 mb-2">
+            {isEdit ? (
+              <Bank2 size={32} color="var(--primary-blue)" />
+            ) : (
+              <PlusCircle size={32} color="var(--primary-blue)" />
+            )}
+            <h1 className="mb-0" style={{ color: "var(--text-primary)", fontWeight: 700 }}>
+              {isEdit ? "Edit Account" : "Open New Account"}
+            </h1>
+          </div>
+          <p className="text-muted mb-0" style={{ paddingLeft: "2.75rem", color: "var(--text-tertiary)" }}>
+            {isEdit ? "Update account information" : "Create a new bank account"}
+          </p>
+        </Col>
+      </Row>
 
-              <div className="row">
-                <div className="col-md-6">
-                  <Form.Group className="mb-3">
-                    <Form.Label>Customer *</Form.Label>
-                    <Form.Select
-                      name="customerId"
-                      value={formData.customerId}
-                      onChange={handleChange}
-                      required
-                      disabled={isEdit}
-                    >
-                      <option value="">Select a customer</option>
-                      {customers.map((customer) => (
-                        <option
-                          key={customer.customerId}
-                          value={customer.customerId}
-                        >
-                          {customer.firstName} {customer.lastName}
-                        </option>
-                      ))}
-                    </Form.Select>
-                  </Form.Group>
-                </div>
-                <div className="col-md-6">
-                  <Form.Group className="mb-3">
-                    <Form.Label>Initial Balance</Form.Label>
-                    <Form.Control
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      name="balance"
-                      value={formData.balance}
-                      onChange={handleChange}
-                      disabled={isEdit}
-                    />
-                  </Form.Group>
-                </div>
-              </div>
+      {/* Form Card */}
+      <Card className="border-0 shadow-sm" style={{ background: "#ffffff", borderRadius: "var(--radius-lg)", boxShadow: "0 18px 38px rgba(16, 42, 67, 0.08)" }}>
+        <Card.Body className="p-4">
+          <Form onSubmit={handleSubmit}>
+            <Row className="g-3 mb-3">
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: "0.75rem" }}>
+                    Account Number <span style={{ color: "#dc3545" }}>*</span>
+                  </Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="accountNumber"
+                    value={formData.accountNumber}
+                    onChange={handleChange}
+                    required
+                    disabled={isEdit}
+                    style={{
+                      borderRadius: "var(--radius-md)",
+                      borderColor: "var(--border-medium)",
+                      background: isEdit ? "var(--bg-secondary)" : "var(--bg-input)",
+                    }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: "0.75rem" }}>
+                    Account Type <span style={{ color: "#dc3545" }}>*</span>
+                  </Form.Label>
+                  <Form.Select
+                    name="accountType"
+                    value={formData.accountType}
+                    onChange={handleChange}
+                    required
+                    style={{
+                      borderRadius: "var(--radius-md)",
+                      borderColor: "var(--border-medium)",
+                      background: "var(--bg-input)",
+                    }}
+                  >
+                    <option value="SAVINGS">Savings</option>
+                    <option value="CHECKING">Checking</option>
+                    <option value="FIXED_DEPOSIT">Fixed Deposit</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+            </Row>
 
-              <div className="row">
-                <div className="col-md-6">
-                  <Form.Group className="mb-3">
-                    <Form.Label>Interest Rate (%)</Form.Label>
-                    <Form.Control
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      max="100"
-                      name="interestRate"
-                      value={formData.interestRate}
-                      onChange={handleChange}
-                    />
-                  </Form.Group>
-                </div>
-                <div className="col-md-6">
-                  <Form.Group className="mb-3">
-                    <Form.Label>Account Status</Form.Label>
-                    <Form.Select
-                      name="status"
-                      value={formData.status}
-                      onChange={handleChange}
-                    >
-                      <option value="ACTIVE">Active</option>
-                      <option value="INACTIVE">Inactive</option>
-                      <option value="SUSPENDED">Suspended</option>
-                    </Form.Select>
-                  </Form.Group>
-                </div>
-              </div>
+            <Row className="g-3 mb-3">
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: "0.75rem" }}>
+                    Customer <span style={{ color: "#dc3545" }}>*</span>
+                  </Form.Label>
+                  <Form.Select
+                    name="customerId"
+                    value={formData.customerId}
+                    onChange={handleChange}
+                    required
+                    disabled={isEdit}
+                    style={{
+                      borderRadius: "var(--radius-md)",
+                      borderColor: "var(--border-medium)",
+                      background: isEdit ? "var(--bg-secondary)" : "var(--bg-input)",
+                    }}
+                  >
+                    <option value="">Select a customer</option>
+                    {customers.map((customer) => (
+                      <option
+                        key={customer.customerId}
+                        value={customer.customerId}
+                      >
+                        {customer.firstName} {customer.lastName}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: "0.75rem" }}>
+                    Initial Balance
+                  </Form.Label>
+                  <Form.Control
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    name="balance"
+                    value={formData.balance}
+                    onChange={handleChange}
+                    disabled={isEdit}
+                    style={{
+                      borderRadius: "var(--radius-md)",
+                      borderColor: "var(--border-medium)",
+                      background: isEdit ? "var(--bg-secondary)" : "var(--bg-input)",
+                    }}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
 
-              <div className="d-flex gap-2">
-                <Button type="submit" variant="primary" disabled={loading}>
-                  {loading ? (
-                    <>
-                      <Spinner size="sm" className="me-2" />
-                      {isEdit ? "Updating..." : "Creating..."}
-                    </>
-                  ) : isEdit ? (
-                    "Update Account"
-                  ) : (
-                    "Create Account"
-                  )}
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => navigate("/accounts")}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </Form>
-          </Card.Body>
-        </Card>
-      </div>
-    </div>
+            <Row className="g-3 mb-3">
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: "0.75rem" }}>
+                    Interest Rate (%)
+                  </Form.Label>
+                  <Form.Control
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    name="interestRate"
+                    value={formData.interestRate}
+                    onChange={handleChange}
+                    style={{
+                      borderRadius: "var(--radius-md)",
+                      borderColor: "var(--border-medium)",
+                      background: "var(--bg-input)",
+                    }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: "0.75rem" }}>
+                    Account Status
+                  </Form.Label>
+                  <Form.Select
+                    name="status"
+                    value={formData.status}
+                    onChange={handleChange}
+                    style={{
+                      borderRadius: "var(--radius-md)",
+                      borderColor: "var(--border-medium)",
+                      background: "var(--bg-input)",
+                    }}
+                  >
+                    <option value="ACTIVE">Active</option>
+                    <option value="INACTIVE">Inactive</option>
+                    <option value="SUSPENDED">Suspended</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <div className="d-flex gap-3 mt-4 pt-3 border-top" style={{ borderColor: "var(--border-light) !important" }}>
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={loading}
+                className="d-inline-flex align-items-center gap-2"
+                style={{
+                  borderRadius: "var(--radius-full)",
+                  fontWeight: 600,
+                  padding: "0.75rem 2rem",
+                  border: "none",
+                }}
+              >
+                {loading ? (
+                  <>
+                    <Spinner size="sm" />
+                    {isEdit ? "Updating..." : "Creating..."}
+                  </>
+                ) : (
+                  <>
+                    <Save size={18} />
+                    {isEdit ? "Update Account" : "Create Account"}
+                  </>
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="outline-secondary"
+                onClick={() => navigate("/accounts")}
+                className="d-inline-flex align-items-center gap-2"
+                style={{
+                  borderRadius: "var(--radius-full)",
+                  fontWeight: 600,
+                  padding: "0.75rem 2rem",
+                  borderColor: "var(--border-medium)",
+                }}
+              >
+                <ArrowLeft size={18} />
+                Cancel
+              </Button>
+            </div>
+          </Form>
+        </Card.Body>
+      </Card>
+    </Container>
   );
 };
 

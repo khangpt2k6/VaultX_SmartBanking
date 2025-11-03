@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Spinner, Row, Col, Container, Card, Button, Form } from "react-bootstrap";
+import { ArrowLeftRight, PlusCircle, ArrowLeft, Save } from "react-bootstrap-icons";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { API_BASE_URL } from "../config/api";
-import { GlassForm, GlassInput, GlassSelect } from "./ui/GlassForm";
-import { GlassButton } from "./ui/GlassButton";
 
 const TransactionForm = () => {
   const [formData, setFormData] = useState({
@@ -38,7 +37,6 @@ const TransactionForm = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      // Handle both array and object responses
       let accountsData = [];
       if (Array.isArray(response.data)) {
         accountsData = response.data;
@@ -83,7 +81,6 @@ const TransactionForm = () => {
         [name]: value,
       };
 
-      // Clear destination account if transaction type is not TRANSFER
       if (name === "transactionType" && value !== "TRANSFER") {
         newFormData.destinationAccountId = "";
       }
@@ -125,145 +122,217 @@ const TransactionForm = () => {
 
   if (loading && isEdit) {
     return (
-      <div className="text-center mt-5">
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </Spinner>
-      </div>
+      <Container fluid className="py-5" style={{ maxWidth: "900px" }}>
+        <div className="text-center py-5">
+          <Spinner animation="border" role="status" style={{ color: "var(--primary-blue)" }}>
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+        </div>
+      </Container>
     );
   }
 
   return (
-    <div className="row justify-content-center">
-      <div className="col-md-8">
-        <Card>
-          <Card.Header>
-            <h4>{isEdit ? "Edit Transaction" : "New Transaction"}</h4>
-          </Card.Header>
-          <Card.Body>
-            <Form onSubmit={handleSubmit}>
-              <div className="row">
-                <div className="col-md-6">
-                  <Form.Group className="mb-3">
-                    <Form.Label>Transaction Type *</Form.Label>
-                    <Form.Select
-                      name="transactionType"
-                      value={formData.transactionType}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value="DEPOSIT">Deposit</option>
-                      <option value="WITHDRAWAL">Withdrawal</option>
-                      <option value="TRANSFER">Transfer</option>
-                    </Form.Select>
-                  </Form.Group>
-                </div>
-                <div className="col-md-6">
-                  <Form.Group className="mb-3">
-                    <Form.Label>Amount *</Form.Label>
-                    <Form.Control
-                      type="number"
-                      step="0.01"
-                      min="0.01"
-                      name="amount"
-                      value={formData.amount}
-                      onChange={handleChange}
-                      required
-                    />
-                  </Form.Group>
-                </div>
-              </div>
+    <Container fluid className="py-4" style={{ maxWidth: "900px", background: "var(--gradient-background)", minHeight: "100vh" }}>
+      {/* Header */}
+      <Row className="mb-5">
+        <Col>
+          <div className="d-flex align-items-center gap-3 mb-2">
+            {isEdit ? (
+              <ArrowLeftRight size={32} color="var(--primary-blue)" />
+            ) : (
+              <PlusCircle size={32} color="var(--primary-blue)" />
+            )}
+            <h1 className="mb-0" style={{ color: "var(--text-primary)", fontWeight: 700 }}>
+              {isEdit ? "Edit Transaction" : "New Transaction"}
+            </h1>
+          </div>
+          <p className="text-muted mb-0" style={{ paddingLeft: "2.75rem", color: "var(--text-tertiary)" }}>
+            {isEdit ? "Update transaction details" : "Create a new financial transaction"}
+          </p>
+        </Col>
+      </Row>
 
-              <div className="row">
-                <div className="col-md-6">
-                  <Form.Group className="mb-3">
-                    <Form.Label>Account *</Form.Label>
-                    <Form.Select
-                      name="accountId"
-                      value={formData.accountId}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value="">Select an account</option>
-                      {accounts.map((account) => (
-                        <option
-                          key={account.accountId}
-                          value={account.accountId}
-                        >
-                          {account.accountNumber} - {account.customerName}
-                        </option>
-                      ))}
-                    </Form.Select>
-                  </Form.Group>
-                </div>
-                {formData.transactionType === "TRANSFER" && (
-                  <div className="col-md-6">
-                    <Form.Group className="mb-3">
-                      <Form.Label>Destination Account *</Form.Label>
-                      <Form.Select
-                        name="destinationAccountId"
-                        value={formData.destinationAccountId}
-                        onChange={handleChange}
-                        required={formData.transactionType === "TRANSFER"}
+      {/* Form Card */}
+      <Card className="border-0 shadow-sm" style={{ background: "#ffffff", borderRadius: "var(--radius-lg)", boxShadow: "0 18px 38px rgba(16, 42, 67, 0.08)" }}>
+        <Card.Body className="p-4">
+          <Form onSubmit={handleSubmit}>
+            <Row className="g-3 mb-3">
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: "0.75rem" }}>
+                    Transaction Type <span style={{ color: "#dc3545" }}>*</span>
+                  </Form.Label>
+                  <Form.Select
+                    name="transactionType"
+                    value={formData.transactionType}
+                    onChange={handleChange}
+                    required
+                    style={{
+                      borderRadius: "var(--radius-md)",
+                      borderColor: "var(--border-medium)",
+                      background: "var(--bg-input)",
+                    }}
+                  >
+                    <option value="DEPOSIT">Deposit</option>
+                    <option value="WITHDRAWAL">Withdrawal</option>
+                    <option value="TRANSFER">Transfer</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: "0.75rem" }}>
+                    Amount <span style={{ color: "#dc3545" }}>*</span>
+                  </Form.Label>
+                  <Form.Control
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    name="amount"
+                    value={formData.amount}
+                    onChange={handleChange}
+                    required
+                    style={{
+                      borderRadius: "var(--radius-md)",
+                      borderColor: "var(--border-medium)",
+                      background: "var(--bg-input)",
+                    }}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row className="g-3 mb-3">
+              <Col md={formData.transactionType === "TRANSFER" ? 6 : 12}>
+                <Form.Group>
+                  <Form.Label style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: "0.75rem" }}>
+                    Account <span style={{ color: "#dc3545" }}>*</span>
+                  </Form.Label>
+                  <Form.Select
+                    name="accountId"
+                    value={formData.accountId}
+                    onChange={handleChange}
+                    required
+                    style={{
+                      borderRadius: "var(--radius-md)",
+                      borderColor: "var(--border-medium)",
+                      background: "var(--bg-input)",
+                    }}
+                  >
+                    <option value="">Select an account</option>
+                    {accounts.map((account) => (
+                      <option
+                        key={account.accountId}
+                        value={account.accountId}
                       >
-                        <option value="">Select destination account</option>
-                        {accounts
-                          .filter(
-                            (account) =>
-                              account.accountId !== parseInt(formData.accountId)
-                          )
-                          .map((account) => (
-                            <option
-                              key={account.accountId}
-                              value={account.accountId}
-                            >
-                              {account.accountNumber} - {account.customerName}
-                            </option>
-                          ))}
-                      </Form.Select>
-                    </Form.Group>
-                  </div>
+                        {account.accountNumber} - {account.customerName || `${account.customer?.firstName || ""} ${account.customer?.lastName || ""}`.trim()}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              {formData.transactionType === "TRANSFER" && (
+                <Col md={6}>
+                  <Form.Group>
+                    <Form.Label style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: "0.75rem" }}>
+                      Destination Account <span style={{ color: "#dc3545" }}>*</span>
+                    </Form.Label>
+                    <Form.Select
+                      name="destinationAccountId"
+                      value={formData.destinationAccountId}
+                      onChange={handleChange}
+                      required={formData.transactionType === "TRANSFER"}
+                      style={{
+                        borderRadius: "var(--radius-md)",
+                        borderColor: "var(--border-medium)",
+                        background: "var(--bg-input)",
+                      }}
+                    >
+                      <option value="">Select destination account</option>
+                      {accounts
+                        .filter(
+                          (account) =>
+                            account.accountId !== parseInt(formData.accountId)
+                        )
+                        .map((account) => (
+                          <option
+                            key={account.accountId}
+                            value={account.accountId}
+                          >
+                            {account.accountNumber} - {account.customerName || `${account.customer?.firstName || ""} ${account.customer?.lastName || ""}`.trim()}
+                          </option>
+                        ))}
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+              )}
+            </Row>
+
+            <Form.Group className="mb-4">
+              <Form.Label style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: "0.75rem" }}>
+                Description
+              </Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="Enter transaction description..."
+                style={{
+                  borderRadius: "var(--radius-md)",
+                  borderColor: "var(--border-medium)",
+                  background: "var(--bg-input)",
+                }}
+              />
+            </Form.Group>
+
+            <div className="d-flex gap-3 mt-4 pt-3 border-top" style={{ borderColor: "var(--border-light) !important" }}>
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={loading}
+                className="d-inline-flex align-items-center gap-2"
+                style={{
+                  borderRadius: "var(--radius-full)",
+                  fontWeight: 600,
+                  padding: "0.75rem 2rem",
+                  border: "none",
+                }}
+              >
+                {loading ? (
+                  <>
+                    <Spinner size="sm" />
+                    {isEdit ? "Updating..." : "Creating..."}
+                  </>
+                ) : (
+                  <>
+                    <Save size={18} />
+                    {isEdit ? "Update Transaction" : "Create Transaction"}
+                  </>
                 )}
-              </div>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Description</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  placeholder="Enter transaction description..."
-                />
-              </Form.Group>
-
-              <div className="d-flex gap-2">
-                <Button type="submit" variant="primary" disabled={loading}>
-                  {loading ? (
-                    <>
-                      <Spinner size="sm" className="me-2" />
-                      {isEdit ? "Updating..." : "Creating..."}
-                    </>
-                  ) : isEdit ? (
-                    "Update Transaction"
-                  ) : (
-                    "Create Transaction"
-                  )}
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => navigate("/transactions")}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </Form>
-          </Card.Body>
-        </Card>
-      </div>
-    </div>
+              </Button>
+              <Button
+                type="button"
+                variant="outline-secondary"
+                onClick={() => navigate("/transactions")}
+                className="d-inline-flex align-items-center gap-2"
+                style={{
+                  borderRadius: "var(--radius-full)",
+                  fontWeight: 600,
+                  padding: "0.75rem 2rem",
+                  borderColor: "var(--border-medium)",
+                }}
+              >
+                <ArrowLeft size={18} />
+                Cancel
+              </Button>
+            </div>
+          </Form>
+        </Card.Body>
+      </Card>
+    </Container>
   );
 };
 
