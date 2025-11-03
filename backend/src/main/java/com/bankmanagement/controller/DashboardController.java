@@ -5,7 +5,6 @@ import com.bankmanagement.service.AccountService;
 import com.bankmanagement.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -26,7 +25,7 @@ public class DashboardController {
     private TransactionService transactionService;
 
     @GetMapping("/stats")
-    @PreAuthorize("hasRole('ADMIN')")
+    // @PreAuthorize("hasAnyRole('ADMIN', 'ROLE_ADMIN')") // Commented out to allow all authenticated users
     public ResponseEntity<?> getDashboardStats() {
         System.out.println("🔍 Dashboard stats endpoint called");
         try {
