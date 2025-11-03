@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Spinner, Row, Col, Container } from "react-bootstrap";
+import { Spinner, Row, Col, Container, Card, Button, Form } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
@@ -32,26 +32,44 @@ const TransactionForm = () => {
 
   const fetchAccounts = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/accounts`);
-      setAccounts(response.data);
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API_BASE_URL}/accounts`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // Handle both array and object responses
+      let accountsData = [];
+      if (Array.isArray(response.data)) {
+        accountsData = response.data;
+      } else if (response.data && response.data.accounts && Array.isArray(response.data.accounts)) {
+        accountsData = response.data.accounts;
+      }
+      setAccounts(accountsData);
     } catch (error) {
       console.error("Error fetching accounts:", error);
-      // For demo purposes, set some sample data
-      setAccounts([
-        { accountId: 1, accountNumber: "ACC001", customerName: "John Doe" },
-        { accountId: 2, accountNumber: "ACC002", customerName: "Jane Smith" },
-      ]);
+      setAccounts([]);
     }
   };
 
   const fetchTransaction = async (transactionId) => {
     try {
       setLoading(true);
-      const response = await axios.get(`/api/transactions/${transactionId}`);
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API_BASE_URL}/transactions/${transactionId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setFormData(response.data);
     } catch (error) {
       console.error("Error fetching transaction:", error);
-      toast.error("Failed to fetch transaction data");
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error("Unauthorized. Please log in again.");
+        navigate("/login");
+      } else {
+        toast.error("Failed to fetch transaction data");
+      }
     } finally {
       setLoading(false);
     }
@@ -79,17 +97,27 @@ const TransactionForm = () => {
     setLoading(true);
 
     try {
+      const token = localStorage.getItem("token");
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
       if (isEdit) {
-        await axios.put(`${API_BASE_URL}/transactions/${id}`, formData);
+        await axios.put(`${API_BASE_URL}/transactions/${id}`, formData, { headers });
         toast.success("Transaction updated successfully");
       } else {
-        await axios.post(`${API_BASE_URL}/transactions`, formData);
+        await axios.post(`${API_BASE_URL}/transactions`, formData, { headers });
         toast.success("Transaction created successfully");
       }
       navigate("/transactions");
     } catch (error) {
       console.error("Error saving transaction:", error);
-      toast.error(`Failed to ${isEdit ? "update" : "create"} transaction`);
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error("Unauthorized. Please log in again.");
+        navigate("/login");
+      } else {
+        toast.error(`Failed to ${isEdit ? "update" : "create"} transaction`);
+      }
     } finally {
       setLoading(false);
     }

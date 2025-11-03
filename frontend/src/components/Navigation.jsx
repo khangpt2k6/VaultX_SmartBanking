@@ -19,6 +19,7 @@ const Navigation = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [desktopDropdownOpen, setDesktopDropdownOpen] = useState(null);
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState(null);
+  const [isClicking, setIsClicking] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -29,7 +30,10 @@ const Navigation = () => {
   const isAuthenticated = localStorage.getItem("token");
 
   const toggleDesktopDropdown = (name) => {
+    setIsClicking(true);
     setDesktopDropdownOpen(desktopDropdownOpen === name ? null : name);
+    // Reset clicking flag after a short delay
+    setTimeout(() => setIsClicking(false), 200);
   };
 
   const toggleMobileDropdown = (name) => {
@@ -52,24 +56,45 @@ const Navigation = () => {
             className={`nav-dropdown ${
               desktopDropdownOpen === "banking" ? "open" : ""
             }`}
-            onMouseLeave={() => setDesktopDropdownOpen(null)}
+            onMouseLeave={() => {
+              // Don't close if user just clicked (prevents immediate close on click)
+              if (!isClicking) {
+                setDesktopDropdownOpen(null);
+              }
+            }}
           >
             <button
               className="nav-link dropdown-toggle"
-              onClick={() => toggleDesktopDropdown("banking")}
-              onMouseEnter={() => setDesktopDropdownOpen("banking")}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleDesktopDropdown("banking");
+              }}
+              onMouseEnter={() => {
+                if (desktopDropdownOpen !== "banking") {
+                  setDesktopDropdownOpen("banking");
+                }
+              }}
             >
               <span>Banking</span>
               <ChevronDown size={12} className="chevron-icon" />
             </button>
-            <div className="dropdown-menu">
+            <div 
+              className="dropdown-menu"
+              onMouseEnter={() => setDesktopDropdownOpen("banking")}
+              onMouseLeave={() => setDesktopDropdownOpen(null)}
+            >
+              {/* View Section */}
+              <div className="dropdown-section-divider">
+                <span className="dropdown-section-label">View</span>
+              </div>
               <Link
                 to="/accounts"
                 className="dropdown-item"
                 onClick={() => setDesktopDropdownOpen(null)}
               >
                 <CreditCard size={16} />
-                View Account
+                Accounts
               </Link>
               <Link
                 to="/customers"
@@ -77,7 +102,7 @@ const Navigation = () => {
                 onClick={() => setDesktopDropdownOpen(null)}
               >
                 <Bank2 size={16} />
-                View Customers
+                Customers
               </Link>
               <Link
                 to="/transactions"
@@ -85,22 +110,18 @@ const Navigation = () => {
                 onClick={() => setDesktopDropdownOpen(null)}
               >
                 <ArrowLeftRight size={16} />
-                View Transactions
+                Transactions
               </Link>
-              <Link
-                to="/transactions/new"
-                className="dropdown-item"
-                onClick={() => setDesktopDropdownOpen(null)}
-              >
-                <ArrowLeftRight size={16} />
-                Do Transactions
-              </Link>
+              {/* Actions Section */}
+              <div className="dropdown-section-divider">
+                <span className="dropdown-section-label">Actions</span>
+              </div>
               <Link
                 to="/customers/new"
                 className="dropdown-item"
                 onClick={() => setDesktopDropdownOpen(null)}
               >
-                <Person size={16} />
+                <PersonPlus size={16} />
                 Add Customer
               </Link>
               <Link
@@ -109,14 +130,14 @@ const Navigation = () => {
                 onClick={() => setDesktopDropdownOpen(null)}
               >
                 <Bank2 size={16} />
-                Open Account
+                New Account
               </Link>
               <Link
                 to="/transactions/new"
                 className="dropdown-item"
                 onClick={() => setDesktopDropdownOpen(null)}
               >
-                <CreditCard size={16} />
+                <ArrowLeftRight size={16} />
                 New Transaction
               </Link>
             </div>
@@ -127,17 +148,34 @@ const Navigation = () => {
             className={`nav-dropdown ${
               desktopDropdownOpen === "trading" ? "open" : ""
             }`}
-            onMouseLeave={() => setDesktopDropdownOpen(null)}
+            onMouseLeave={() => {
+              // Don't close if user just clicked (prevents immediate close on click)
+              if (!isClicking) {
+                setDesktopDropdownOpen(null);
+              }
+            }}
           >
             <button
               className="nav-link dropdown-toggle"
-              onClick={() => toggleDesktopDropdown("trading")}
-              onMouseEnter={() => setDesktopDropdownOpen("trading")}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleDesktopDropdown("trading");
+              }}
+              onMouseEnter={() => {
+                if (desktopDropdownOpen !== "trading") {
+                  setDesktopDropdownOpen("trading");
+                }
+              }}
             >
               <span>Trading</span>
               <ChevronDown size={12} className="chevron-icon" />
             </button>
-            <div className="dropdown-menu">
+            <div 
+              className="dropdown-menu"
+              onMouseEnter={() => setDesktopDropdownOpen("trading")}
+              onMouseLeave={() => setDesktopDropdownOpen(null)}
+            >
               <Link
                 to="/trading"
                 className="dropdown-item"
@@ -225,34 +263,29 @@ const Navigation = () => {
             </button>
             {mobileDropdownOpen === "banking" && (
               <div className="mobile-dropdown-menu">
+                <div className="mobile-dropdown-section-label">View</div>
                 <Link
                   to="/accounts"
                   className="mobile-dropdown-item"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  View Account
+                  Accounts
                 </Link>
                 <Link
                   to="/customers"
                   className="mobile-dropdown-item"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  View Customers
+                  Customers
                 </Link>
                 <Link
                   to="/transactions"
                   className="mobile-dropdown-item"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  View Transactions
+                  Transactions
                 </Link>
-                <Link
-                  to="/transactions/new"
-                  className="mobile-dropdown-item"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Do Transactions
-                </Link>
+                <div className="mobile-dropdown-section-label">Actions</div>
                 <Link
                   to="/customers/new"
                   className="mobile-dropdown-item"
@@ -265,7 +298,7 @@ const Navigation = () => {
                   className="mobile-dropdown-item"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Open Account
+                  New Account
                 </Link>
                 <Link
                   to="/transactions/new"

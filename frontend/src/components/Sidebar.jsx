@@ -15,9 +15,15 @@ import {
 import "../styles/sidebar.css";
 
 const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
-  const bankingItems = [
+  const bankingViewItems = [
+    { icon: CreditCard, label: "Accounts", to: "/accounts" },
+    { icon: PeopleFill, label: "Customers", to: "/customers" },
+    { icon: CashStack, label: "Transactions", to: "/transactions" },
+  ];
+
+  const bankingActionItems = [
     { icon: PeopleFill, label: "Add Customer", to: "/customers/new" },
-    { icon: Bank2, label: "Open Account", to: "/accounts/new" },
+    { icon: Bank2, label: "New Account", to: "/accounts/new" },
     { icon: CashStack, label: "New Transaction", to: "/transactions/new" },
   ];
 
@@ -67,8 +73,32 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
           {/* Banking Section */}
           <div className="sidebar-section">
             {!isCollapsed && <div className="sidebar-title">BANKING</div>}
+            
+            {/* View Items */}
+            {!isCollapsed && (
+              <div className="sidebar-subtitle">View</div>
+            )}
             <div className="sidebar-items">
-              {bankingItems.map((item) => (
+              {bankingViewItems.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className="sidebar-item"
+                  title={item.label}
+                  onClick={onClose}
+                >
+                  <item.icon size={20} />
+                  {!isCollapsed && <span>{item.label}</span>}
+                </Link>
+              ))}
+            </div>
+
+            {/* Action Items */}
+            {!isCollapsed && (
+              <div className="sidebar-subtitle" style={{ marginTop: "1rem" }}>Actions</div>
+            )}
+            <div className="sidebar-items">
+              {bankingActionItems.map((item) => (
                 <Link
                   key={item.to}
                   to={item.to}

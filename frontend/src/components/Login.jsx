@@ -29,16 +29,44 @@ const Login = () => {
 
     try {
       const response = await axios.post(`${API_BASE_URL}/auth/login`, formData);
-      const { token, user } = response.data;
+      
+      // Backend returns: token, userId, email, firstName, lastName, roles, customer
+      if (response.data.success && response.data.token) {
+        const { token, userId, email, firstName, lastName, roles, customer } = response.data;
+        
+        // Create user object from response data
+        const user = {
+          userId,
+          email,
+          firstName,
+          lastName,
+          roles: roles || [],
+          customer: customer || null,
+        };
 
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("token", token);
+        localStorage.setItem("userId", userId);
+        localStorage.setItem("user", JSON.stringify(user));
 
-      toast.success("Login successful!");
-      navigate("/");
+        toast.success("Login successful!");
+        navigate("/");
+      } else {
+        // Handle case where success is false
+        const errorMessage = response.data.message || "Login failed";
+        toast.error(errorMessage);
+      }
     } catch (error) {
       console.error("Login error:", error);
-      toast.error("Invalid email or password");
+      
+      // Extract error message from response
+      let errorMessage = "Invalid email or password";
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

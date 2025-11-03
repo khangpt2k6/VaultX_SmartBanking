@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Spinner, Row, Col, Container } from "react-bootstrap";
+import { Spinner, Row, Col, Container, Card, Button, Form } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
@@ -33,7 +33,12 @@ const AccountForm = () => {
 
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/customers`);
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API_BASE_URL}/customers`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setCustomers(response.data);
     } catch (error) {
       console.error("Error fetching customers:", error);
@@ -44,11 +49,21 @@ const AccountForm = () => {
   const fetchAccount = async (accountId) => {
     try {
       setLoading(true);
-      const response = await axios.get(`/api/accounts/${accountId}`);
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API_BASE_URL}/accounts/${accountId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setFormData(response.data);
     } catch (error) {
       console.error("Error fetching account:", error);
-      toast.error("Failed to fetch account data");
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error("Unauthorized. Please log in again.");
+        navigate("/login");
+      } else {
+        toast.error("Failed to fetch account data");
+      }
     } finally {
       setLoading(false);
     }
@@ -77,17 +92,27 @@ const AccountForm = () => {
 
       console.log("📤 Sending account data:", accountData);
 
+      const token = localStorage.getItem("token");
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
       if (isEdit) {
-        await axios.put(`${API_BASE_URL}/accounts/${id}`, accountData);
+        await axios.put(`${API_BASE_URL}/accounts/${id}`, accountData, { headers });
         toast.success("Account updated successfully");
       } else {
-        await axios.post(`${API_BASE_URL}/accounts`, accountData);
+        await axios.post(`${API_BASE_URL}/accounts`, accountData, { headers });
         toast.success("Account created successfully");
       }
       navigate("/accounts");
     } catch (error) {
       console.error("Error saving account:", error);
-      toast.error(`Failed to ${isEdit ? "update" : "create"} account`);
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error("Unauthorized. Please log in again.");
+        navigate("/login");
+      } else {
+        toast.error(`Failed to ${isEdit ? "update" : "create"} account`);
+      }
     } finally {
       setLoading(false);
     }

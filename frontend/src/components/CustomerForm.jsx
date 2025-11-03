@@ -33,11 +33,21 @@ const CustomerForm = () => {
   const fetchCustomer = async (customerId) => {
     try {
       setLoading(true);
-      const response = await axios.get(`/api/customers/${customerId}`);
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API_BASE_URL}/customers/${customerId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setFormData(response.data);
     } catch (error) {
       console.error("Error fetching customer:", error);
-      toast.error("Failed to fetch customer data");
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error("Unauthorized. Please log in again.");
+        navigate("/login");
+      } else {
+        toast.error("Failed to fetch customer data");
+      }
     } finally {
       setLoading(false);
     }
@@ -56,17 +66,27 @@ const CustomerForm = () => {
     setLoading(true);
 
     try {
+      const token = localStorage.getItem("token");
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
       if (isEdit) {
-        await axios.put(`${API_BASE_URL}/customers/${id}`, formData);
+        await axios.put(`${API_BASE_URL}/customers/${id}`, formData, { headers });
         toast.success("Customer updated successfully");
       } else {
-        await axios.post(`${API_BASE_URL}/customers`, formData);
+        await axios.post(`${API_BASE_URL}/customers`, formData, { headers });
         toast.success("Customer created successfully");
       }
       navigate("/customers");
     } catch (error) {
       console.error("Error saving customer:", error);
-      toast.error(`Failed to ${isEdit ? "update" : "create"} customer`);
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error("Unauthorized. Please log in again.");
+        navigate("/login");
+      } else {
+        toast.error(`Failed to ${isEdit ? "update" : "create"} customer`);
+      }
     } finally {
       setLoading(false);
     }

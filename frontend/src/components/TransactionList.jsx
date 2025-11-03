@@ -6,6 +6,9 @@ import {
   Modal,
   Spinner,
   Container,
+  Button,
+  Alert,
+  Badge,
 } from "react-bootstrap";
 import {
   Pencil,
@@ -41,11 +44,23 @@ const TransactionList = () => {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/transactions`);
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API_BASE_URL}/transactions`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setTransactions(response.data);
     } catch (error) {
       console.error("Error fetching transactions:", error);
-      toast.error("Failed to fetch transactions");
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error("Unauthorized. Please log in again.");
+        localStorage.removeItem("token");
+        localStorage.removeItem("userId");
+        navigate("/login");
+      } else {
+        toast.error("Failed to fetch transactions");
+      }
       setTransactions([]);
     } finally {
       setLoading(false);
@@ -83,14 +98,24 @@ const TransactionList = () => {
 
   const confirmDelete = async () => {
     try {
+      const token = localStorage.getItem("token");
       await axios.delete(
-        `${API_BASE_URL}/transactions/${transactionToDelete.transactionId}`
+        `${API_BASE_URL}/transactions/${transactionToDelete.transactionId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       toast.success("Transaction deleted successfully");
       fetchTransactions();
     } catch (error) {
       console.error("Error deleting transaction:", error);
-      toast.error("Failed to delete transaction");
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error("Unauthorized. Please log in again.");
+      } else {
+        toast.error("Failed to delete transaction");
+      }
     } finally {
       setShowDeleteModal(false);
       setTransactionToDelete(null);

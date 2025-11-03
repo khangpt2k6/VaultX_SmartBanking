@@ -6,6 +6,9 @@ import {
   Modal,
   Spinner,
   Container,
+  Button,
+  Alert,
+  Badge,
 } from "react-bootstrap";
 import { Pencil, Trash, Eye, Plus, Search, Bank2 } from "react-bootstrap-icons";
 import { Link, useNavigate } from "react-router-dom";
@@ -115,14 +118,27 @@ const AccountList = () => {
 
   const confirmDelete = async () => {
     try {
+      const token = localStorage.getItem("token");
       await axios.delete(
-        `${API_BASE_URL}/accounts/${accountToDelete.accountId}`
+        `${API_BASE_URL}/accounts/${accountToDelete.accountId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       toast.success("Account deleted successfully");
       fetchAccounts();
     } catch (error) {
       console.error("Error deleting account:", error);
-      toast.error("Failed to delete account");
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error("Unauthorized. Please log in again.");
+        localStorage.removeItem("token");
+        localStorage.removeItem("userId");
+        navigate("/login");
+      } else {
+        toast.error("Failed to delete account");
+      }
     } finally {
       setShowDeleteModal(false);
       setAccountToDelete(null);

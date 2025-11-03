@@ -6,6 +6,9 @@ import {
   Modal,
   Spinner,
   Container,
+  Button,
+  Alert,
+  Badge,
 } from "react-bootstrap";
 import {
   Pencil,
@@ -43,11 +46,23 @@ const CustomerList = () => {
   const fetchCustomers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/customers`);
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API_BASE_URL}/customers`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setCustomers(response.data);
     } catch (error) {
       console.error("Error fetching customers:", error);
-      toast.error("Failed to fetch customers");
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error("Unauthorized. Please log in again.");
+        localStorage.removeItem("token");
+        localStorage.removeItem("userId");
+        navigate("/login");
+      } else {
+        toast.error("Failed to fetch customers");
+      }
       setCustomers([]);
     } finally {
       setLoading(false);
@@ -76,14 +91,24 @@ const CustomerList = () => {
 
   const confirmDelete = async () => {
     try {
+      const token = localStorage.getItem("token");
       await axios.delete(
-        `${API_BASE_URL}/customers/${customerToDelete.customerId}`
+        `${API_BASE_URL}/customers/${customerToDelete.customerId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       toast.success("Customer deleted successfully");
       fetchCustomers();
     } catch (error) {
       console.error("Error deleting customer:", error);
-      toast.error("Failed to delete customer");
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error("Unauthorized. Please log in again.");
+      } else {
+        toast.error("Failed to delete customer");
+      }
     } finally {
       setShowDeleteModal(false);
       setCustomerToDelete(null);

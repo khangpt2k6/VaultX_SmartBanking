@@ -1,10 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Table, Form, Spinner } from "react-bootstrap";
+import { Container, Row, Col, Table, Form, Spinner, Card, Button, Alert, Badge } from "react-bootstrap";
+import {
+  FileText,
+  ArrowUpCircle,
+  ArrowDownCircle,
+  CheckCircle,
+  Clock,
+  XCircle,
+  Download,
+  BarChart,
+  ArrowUp,
+  ArrowDown,
+} from "react-bootstrap-icons";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { API_BASE_URL } from "../config/api";
-import { GlassCard } from "./ui/GlassCard";
-import { GlassButton } from "./ui/GlassButton";
 
 const TradeHistory = () => {
   const [trades, setTrades] = useState([]);
@@ -20,32 +30,65 @@ const TradeHistory = () => {
     totalProfit: 0,
     totalCommission: 0,
   });
+  const [userId, setUserId] = useState(null);
 
-  const token = localStorage.getItem("token");
-  const userId = localStorage.getItem("userId");
+  // Get userId from localStorage (either directly or from user object)
+  useEffect(() => {
+    const storedUserId = localStorage.getItem("userId");
+    if (storedUserId) {
+      setUserId(storedUserId);
+    } else {
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          if (user.userId) {
+            setUserId(user.userId);
+            localStorage.setItem("userId", user.userId);
+          }
+        } catch (e) {
+          console.error("Error parsing user object:", e);
+        }
+      }
+    }
+  }, []);
 
   useEffect(() => {
-    loadTrades();
-  }, []);
+    const authToken = localStorage.getItem("token");
+    if (userId && authToken) {
+      loadTrades();
+    }
+  }, [userId]);
 
   useEffect(() => {
     filterTrades();
     calculateStats();
-  }, [trades, filterType, filterStatus]);
+  }, [trades, filterType, filterStatus, dateRange]);
 
   const loadTrades = async () => {
     try {
+      const authToken = localStorage.getItem("token");
+      if (!authToken || !userId) {
+        console.warn("Token or userId not available");
+        return;
+      }
       setLoading(true);
       const response = await axios.get(
         `${API_BASE_URL}/trading/user/${userId}`,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${authToken}` },
         }
       );
       setTrades(response.data.trades || []);
     } catch (error) {
       console.error("Error loading trades:", error);
-      toast.error("Failed to load trade history");
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error("Unauthorized. Please log in again.");
+        localStorage.removeItem("token");
+        localStorage.removeItem("userId");
+      } else {
+        toast.error("Failed to load trade history");
+      }
     } finally {
       setLoading(false);
     }
@@ -154,60 +197,96 @@ const TradeHistory = () => {
   };
 
   return (
-    <Container fluid className="py-4">
-      <Row className="mb-4">
-        <Col md={12}>
-          <h1 className="mb-2">📋 Trade History & Ledger</h1>
-          <p className="text-muted">
+    <Container fluid className="py-4" style={{ maxWidth: "1400px" }}>
+      {/* Header */}
+      <Row className="mb-5">
+        <Col>
+          <div className="d-flex align-items-center gap-3 mb-2">
+            <FileText size={32} color="var(--primary-blue)" />
+            <h1 className="mb-0" style={{ color: "var(--text-primary)", fontWeight: 700 }}>
+              Trade History & Ledger
+            </h1>
+          </div>
+          <p className="text-muted mb-0" style={{ paddingLeft: "2.75rem", color: "var(--text-tertiary)" }}>
             View all your trading transactions and performance metrics
           </p>
         </Col>
       </Row>
 
       {/* Statistics Cards */}
-      <Row className="mb-4">
+      <Row className="mb-4 g-3">
         <Col md={2.4}>
-          <Card className="bg-primary text-white text-center shadow-sm">
-            <Card.Body className="py-3">
-              <h6 className="mb-2">Total Trades</h6>
-              <h3>{stats.totalTrades}</h3>
+          <Card className="border-0 shadow-sm" style={{ background: "var(--bg-card)", borderRadius: "var(--radius-lg)" }}>
+            <Card.Body className="p-4 text-center">
+              <BarChart size={32} color="var(--primary-blue)" className="mb-2" style={{ opacity: 0.15 }} />
+              <p className="mb-1 text-muted" style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-tertiary)" }}>
+                Total Trades
+              </p>
+              <h3 className="mb-0" style={{ color: "var(--text-primary)", fontWeight: 700 }}>
+                {stats.totalTrades}
+              </h3>
             </Card.Body>
           </Card>
         </Col>
         <Col md={2.4}>
-          <Card className="bg-success text-white text-center shadow-sm">
-            <Card.Body className="py-3">
-              <h6 className="mb-2">Buy Orders</h6>
-              <h3>{stats.totalBuys}</h3>
+          <Card className="border-0 shadow-sm" style={{ background: "var(--bg-card)", borderRadius: "var(--radius-lg)" }}>
+            <Card.Body className="p-4 text-center">
+              <ArrowUpCircle size={32} color="#28a745" className="mb-2" style={{ opacity: 0.15 }} />
+              <p className="mb-1 text-muted" style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-tertiary)" }}>
+                Buy Orders
+              </p>
+              <h3 className="mb-0" style={{ color: "var(--text-primary)", fontWeight: 700 }}>
+                {stats.totalBuys}
+              </h3>
             </Card.Body>
           </Card>
         </Col>
         <Col md={2.4}>
-          <Card className="bg-danger text-white text-center shadow-sm">
-            <Card.Body className="py-3">
-              <h6 className="mb-2">Sell Orders</h6>
-              <h3>{stats.totalSells}</h3>
+          <Card className="border-0 shadow-sm" style={{ background: "var(--bg-card)", borderRadius: "var(--radius-lg)" }}>
+            <Card.Body className="p-4 text-center">
+              <ArrowDownCircle size={32} color="#dc3545" className="mb-2" style={{ opacity: 0.15 }} />
+              <p className="mb-1 text-muted" style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-tertiary)" }}>
+                Sell Orders
+              </p>
+              <h3 className="mb-0" style={{ color: "var(--text-primary)", fontWeight: 700 }}>
+                {stats.totalSells}
+              </h3>
             </Card.Body>
           </Card>
         </Col>
         <Col md={2.4}>
-          <Card
-            className={`${
-              stats.totalProfit >= 0 ? "bg-success" : "bg-danger"
-            } text-white text-center shadow-sm`}
-            style={{ color: "white" }}
-          >
-            <Card.Body className="py-3">
-              <h6 className="mb-2">P/L</h6>
-              <h3>${Math.abs(stats.totalProfit)}</h3>
+          <Card className="border-0 shadow-sm" style={{ background: "var(--bg-card)", borderRadius: "var(--radius-lg)" }}>
+            <Card.Body className="p-4 text-center">
+              {parseFloat(stats.totalProfit) >= 0 ? (
+                <ArrowUp size={32} color="#28a745" className="mb-2" style={{ opacity: 0.15 }} />
+              ) : (
+                <ArrowDown size={32} color="#dc3545" className="mb-2" style={{ opacity: 0.15 }} />
+              )}
+              <p className="mb-1 text-muted" style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-tertiary)" }}>
+                P/L
+              </p>
+              <h3
+                className="mb-0"
+                style={{
+                  color: parseFloat(stats.totalProfit) >= 0 ? "#28a745" : "#dc3545",
+                  fontWeight: 700,
+                }}
+              >
+                ${Math.abs(stats.totalProfit)}
+              </h3>
             </Card.Body>
           </Card>
         </Col>
         <Col md={2.4}>
-          <Card className="bg-warning text-white text-center shadow-sm">
-            <Card.Body className="py-3">
-              <h6 className="mb-2">Total Fees</h6>
-              <h3>${stats.totalCommission}</h3>
+          <Card className="border-0 shadow-sm" style={{ background: "var(--bg-card)", borderRadius: "var(--radius-lg)" }}>
+            <Card.Body className="p-4 text-center">
+              <FileText size={32} color="var(--primary-blue)" className="mb-2" style={{ opacity: 0.15 }} />
+              <p className="mb-1 text-muted" style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-tertiary)" }}>
+                Total Fees
+              </p>
+              <h3 className="mb-0" style={{ color: "var(--text-primary)", fontWeight: 700 }}>
+                ${stats.totalCommission}
+              </h3>
             </Card.Body>
           </Card>
         </Col>
@@ -216,16 +295,23 @@ const TradeHistory = () => {
       {/* Filters */}
       <Row className="mb-4">
         <Col md={12}>
-          <Card className="shadow-sm">
-            <Card.Body>
+          <Card className="border-0 shadow-sm" style={{ background: "var(--bg-card)", borderRadius: "var(--radius-lg)" }}>
+            <Card.Body className="p-4">
               <Form>
-                <Row>
+                <Row className="g-3">
                   <Col md={3}>
                     <Form.Group>
-                      <Form.Label>Trade Type</Form.Label>
+                      <Form.Label style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: "0.75rem" }}>
+                        Trade Type
+                      </Form.Label>
                       <Form.Select
                         value={filterType}
                         onChange={(e) => setFilterType(e.target.value)}
+                        style={{
+                          borderRadius: "var(--radius-md)",
+                          borderColor: "var(--border-medium)",
+                          background: "var(--bg-input)",
+                        }}
                       >
                         <option value="ALL">All Types</option>
                         <option value="BUY">Buy Orders</option>
@@ -235,10 +321,17 @@ const TradeHistory = () => {
                   </Col>
                   <Col md={3}>
                     <Form.Group>
-                      <Form.Label>Status</Form.Label>
+                      <Form.Label style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: "0.75rem" }}>
+                        Status
+                      </Form.Label>
                       <Form.Select
                         value={filterStatus}
                         onChange={(e) => setFilterStatus(e.target.value)}
+                        style={{
+                          borderRadius: "var(--radius-md)",
+                          borderColor: "var(--border-medium)",
+                          background: "var(--bg-input)",
+                        }}
                       >
                         <option value="ALL">All Status</option>
                         <option value="COMPLETED">Completed</option>
@@ -249,10 +342,17 @@ const TradeHistory = () => {
                   </Col>
                   <Col md={3}>
                     <Form.Group>
-                      <Form.Label>Date Range</Form.Label>
+                      <Form.Label style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: "0.75rem" }}>
+                        Date Range
+                      </Form.Label>
                       <Form.Select
                         value={dateRange}
                         onChange={(e) => setDateRange(e.target.value)}
+                        style={{
+                          borderRadius: "var(--radius-md)",
+                          borderColor: "var(--border-medium)",
+                          background: "var(--bg-input)",
+                        }}
                       >
                         <option value="7days">Last 7 Days</option>
                         <option value="30days">Last 30 Days</option>
@@ -263,13 +363,22 @@ const TradeHistory = () => {
                   </Col>
                   <Col md={3}>
                     <Form.Group>
-                      <Form.Label>&nbsp;</Form.Label>
+                      <Form.Label style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: "0.75rem" }}>
+                        &nbsp;
+                      </Form.Label>
                       <Button
-                        variant="success"
-                        className="w-100"
+                        variant="outline-primary"
+                        className="w-100 d-inline-flex align-items-center justify-content-center gap-2"
                         onClick={exportToCSV}
+                        style={{
+                          borderRadius: "var(--radius-full)",
+                          fontWeight: 600,
+                          padding: "0.65rem 1.5rem",
+                          borderColor: "var(--border-medium)",
+                        }}
                       >
-                        📥 Export CSV
+                        <Download size={16} />
+                        Export CSV
                       </Button>
                     </Form.Group>
                   </Col>
@@ -283,34 +392,62 @@ const TradeHistory = () => {
       {/* Trades Table */}
       <Row>
         <Col md={12}>
-          <Card className="shadow-sm">
-            <Card.Header className="bg-dark text-white">
-              <h5 className="mb-0">
+          <Card className="border-0 shadow-sm" style={{ background: "var(--bg-card)", borderRadius: "var(--radius-lg)" }}>
+            <Card.Header className="border-0 pb-0 pt-4 px-4" style={{ background: "transparent" }}>
+              <h5 className="mb-0 d-flex align-items-center gap-2" style={{ color: "var(--text-primary)", fontWeight: 700 }}>
+                <FileText size={20} color="var(--primary-blue)" />
                 Transaction Ledger ({filteredTrades.length} trades)
               </h5>
             </Card.Header>
-            <Card.Body>
+            <Card.Body className="p-4">
               {loading ? (
-                <Alert variant="info">Loading trade history...</Alert>
+                <div className="text-center py-5">
+                  <Spinner animation="border" role="status" style={{ color: "var(--primary-blue)" }}>
+                    <span className="visually-hidden">Loading...</span>
+                  </Spinner>
+                  <p className="mt-3 mb-0" style={{ color: "var(--text-tertiary)" }}>
+                    Loading trade history...
+                  </p>
+                </div>
               ) : filteredTrades.length > 0 ? (
                 <div className="table-responsive">
-                  <Table striped hover>
+                  <Table hover responsive className="mb-0" style={{ borderCollapse: "separate", borderSpacing: 0 }}>
                     <thead>
-                      <tr>
-                        <th>Trade ID</th>
-                        <th>Asset</th>
-                        <th>Type</th>
-                        <th>Quantity</th>
-                        <th>Price/Unit</th>
-                        <th>Amount</th>
-                        <th>Commission</th>
-                        <th>Total</th>
-                        <th>Date & Time</th>
-                        <th>Status</th>
+                      <tr style={{ background: "var(--bg-secondary)" }}>
+                        <th style={{ padding: "1rem", fontWeight: 700, color: "var(--text-primary)", fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "2px solid var(--border-light)" }}>
+                          Trade ID
+                        </th>
+                        <th style={{ padding: "1rem", fontWeight: 700, color: "var(--text-primary)", fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "2px solid var(--border-light)" }}>
+                          Asset
+                        </th>
+                        <th style={{ padding: "1rem", fontWeight: 700, color: "var(--text-primary)", fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "2px solid var(--border-light)" }}>
+                          Type
+                        </th>
+                        <th style={{ padding: "1rem", fontWeight: 700, color: "var(--text-primary)", fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "2px solid var(--border-light)" }}>
+                          Quantity
+                        </th>
+                        <th style={{ padding: "1rem", fontWeight: 700, color: "var(--text-primary)", fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "2px solid var(--border-light)" }}>
+                          Price/Unit
+                        </th>
+                        <th style={{ padding: "1rem", fontWeight: 700, color: "var(--text-primary)", fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "2px solid var(--border-light)" }}>
+                          Amount
+                        </th>
+                        <th style={{ padding: "1rem", fontWeight: 700, color: "var(--text-primary)", fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "2px solid var(--border-light)" }}>
+                          Commission
+                        </th>
+                        <th style={{ padding: "1rem", fontWeight: 700, color: "var(--text-primary)", fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "2px solid var(--border-light)" }}>
+                          Total
+                        </th>
+                        <th style={{ padding: "1rem", fontWeight: 700, color: "var(--text-primary)", fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "2px solid var(--border-light)" }}>
+                          Date & Time
+                        </th>
+                        <th style={{ padding: "1rem", fontWeight: 700, color: "var(--text-primary)", fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "2px solid var(--border-light)" }}>
+                          Status
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredTrades.map((trade) => {
+                      {filteredTrades.map((trade, idx) => {
                         const amount = (
                           trade.quantity * trade.pricePerUnit
                         ).toFixed(2);
@@ -318,46 +455,93 @@ const TradeHistory = () => {
                           parseFloat(amount) + parseFloat(trade.commission)
                         ).toFixed(2);
                         return (
-                          <tr key={trade.tradeId}>
-                            <td>#{trade.tradeId}</td>
-                            <td>
-                              <strong>{trade.asset?.symbol}</strong>
+                          <tr
+                            key={trade.tradeId}
+                            style={{
+                              borderBottom: idx < filteredTrades.length - 1 ? "1px solid var(--border-light)" : "none",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = "var(--bg-hover)";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = "transparent";
+                            }}
+                          >
+                            <td style={{ padding: "1rem", color: "var(--text-secondary)" }}>
+                              <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>#{trade.tradeId}</span>
+                            </td>
+                            <td style={{ padding: "1rem" }}>
+                              <strong style={{ color: "var(--text-primary)", fontWeight: 700 }}>
+                                {trade.asset?.symbol}
+                              </strong>
                               <br />
-                              <small className="text-muted">
+                              <small style={{ color: "var(--text-tertiary)", fontSize: "0.8rem" }}>
                                 {trade.asset?.assetName}
                               </small>
                             </td>
-                            <td>
+                            <td style={{ padding: "1rem" }}>
                               <Badge
-                                bg={
-                                  trade.tradeType === "BUY"
-                                    ? "success"
-                                    : "danger"
-                                }
+                                style={{
+                                  background: trade.tradeType === "BUY" ? "rgba(40, 167, 69, 0.15)" : "rgba(220, 53, 69, 0.15)",
+                                  color: trade.tradeType === "BUY" ? "#28a745" : "#dc3545",
+                                  padding: "0.3rem 0.85rem",
+                                  borderRadius: "var(--radius-full)",
+                                  fontWeight: 600,
+                                  fontSize: "0.75rem",
+                                }}
                               >
+                                {trade.tradeType === "BUY" ? (
+                                  <ArrowUpCircle size={12} className="me-1" />
+                                ) : (
+                                  <ArrowDownCircle size={12} className="me-1" />
+                                )}
                                 {trade.tradeType}
                               </Badge>
                             </td>
-                            <td>{trade.quantity}</td>
-                            <td>${trade.pricePerUnit.toFixed(2)}</td>
-                            <td>${amount}</td>
-                            <td>${trade.commission.toFixed(2)}</td>
-                            <td>
-                              <strong>${total}</strong>
+                            <td style={{ padding: "1rem", color: "var(--text-secondary)" }}>{trade.quantity}</td>
+                            <td style={{ padding: "1rem", color: "var(--text-primary)", fontWeight: 600 }}>
+                              ${trade.pricePerUnit.toFixed(2)}
                             </td>
-                            <td>
+                            <td style={{ padding: "1rem", color: "var(--text-primary)", fontWeight: 600 }}>
+                              ${amount}
+                            </td>
+                            <td style={{ padding: "1rem", color: "var(--text-secondary)" }}>
+                              ${trade.commission.toFixed(2)}
+                            </td>
+                            <td style={{ padding: "1rem", color: "var(--text-primary)", fontWeight: 700 }}>
+                              ${total}
+                            </td>
+                            <td style={{ padding: "1rem", color: "var(--text-tertiary)", fontSize: "0.9rem" }}>
                               {new Date(trade.tradeDate).toLocaleString()}
                             </td>
-                            <td>
+                            <td style={{ padding: "1rem" }}>
                               <Badge
-                                bg={
-                                  trade.tradeStatus === "COMPLETED"
-                                    ? "success"
-                                    : trade.tradeStatus === "PENDING"
-                                    ? "warning"
-                                    : "danger"
-                                }
+                                style={{
+                                  background:
+                                    trade.tradeStatus === "COMPLETED"
+                                      ? "rgba(40, 167, 69, 0.15)"
+                                      : trade.tradeStatus === "PENDING"
+                                      ? "rgba(255, 193, 7, 0.15)"
+                                      : "rgba(220, 53, 69, 0.15)",
+                                  color:
+                                    trade.tradeStatus === "COMPLETED"
+                                      ? "#28a745"
+                                      : trade.tradeStatus === "PENDING"
+                                      ? "#ffc107"
+                                      : "#dc3545",
+                                  padding: "0.3rem 0.85rem",
+                                  borderRadius: "var(--radius-full)",
+                                  fontWeight: 600,
+                                  fontSize: "0.75rem",
+                                }}
                               >
+                                {trade.tradeStatus === "COMPLETED" ? (
+                                  <CheckCircle size={12} className="me-1" />
+                                ) : trade.tradeStatus === "PENDING" ? (
+                                  <Clock size={12} className="me-1" />
+                                ) : (
+                                  <XCircle size={12} className="me-1" />
+                                )}
                                 {trade.tradeStatus}
                               </Badge>
                             </td>
@@ -368,10 +552,12 @@ const TradeHistory = () => {
                   </Table>
                 </div>
               ) : (
-                <Alert variant="info">
-                  No trades found. Start trading to build your transaction
-                  history!
-                </Alert>
+                <div className="text-center py-5">
+                  <FileText size={48} className="mb-3" style={{ opacity: 0.2, color: "var(--primary-blue)" }} />
+                  <p className="mb-0" style={{ color: "var(--text-tertiary)" }}>
+                    No trades found. Start trading to build your transaction history!
+                  </p>
+                </div>
               )}
             </Card.Body>
           </Card>
