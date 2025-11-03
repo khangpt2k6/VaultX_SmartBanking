@@ -1,13 +1,15 @@
-# VaultX Banking System
+# VaultX - Comprehensive Financial Management Platform
 
-A modern, secure banking management system built with **Spring Boot** backend and **React** frontend
+A modern, full-stack financial management system that combines traditional banking operations with advanced trading capabilities. Built with **Spring Boot** backend and **React** frontend, VaultX provides a secure, scalable solution for managing customers, accounts, transactions, and trading portfolios.
 
-## Features
+## Tech Stack
 
-- **Secure Authentication** - JWT-based authentication with role-based access
-- **Customer Management** - Add, edit, delete, and search customers
-- **Account Management** - Create and manage different account types (Savings, Checking, Fixed Deposit)
-- **Transaction Processing** - Handle deposits, withdrawals, transfers, and interest credits
-- **Dashboard** - Real-time statistics and system health monitoring
-- **Responsive Design** - Modern UI that works on all devices
-- **Security First** - Protected routes, secure API calls, and data encryption
+![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.2.0-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+![H2 Database](https://img.shields.io/badge/H2_Database-1.4.200-4479A1?style=for-the-badge&logo=h2&logoColor=white)
+![Maven](https://img.shields.io/badge/Maven-C71A36?style=for-the-badge&logo=apache-maven&logoColor=white)
+
+![React](https://img.shields.io/badge/React-18.2-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5.2.3-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)
+
