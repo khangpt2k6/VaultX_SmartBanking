@@ -2,6 +2,9 @@
 
 A modern, full-stack financial management system that combines traditional banking operations with advanced trading capabilities. Built with **Spring Boot** backend and **React** frontend, VaultX provides a secure, scalable solution for managing customers, accounts, transactions, and trading portfolios.
 
+<img width="1673" height="815" alt="image" src="https://github.com/user-attachments/assets/0ca1f194-64ec-44eb-bc36-05ab0e528287" />
+
+
 ## Tech Stack
 
 ![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
