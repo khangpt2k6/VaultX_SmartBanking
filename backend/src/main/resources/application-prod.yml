@@ -34,6 +34,19 @@ spring:
     user:
       name: ${ADMIN_USERNAME}
       password: ${ADMIN_PASSWORD}
+  
+  task:
+    execution:
+      pool:
+        core-size: 10
+        max-size: 50
+        queue-capacity: 200
+        keep-alive: 120s
+      thread-name-prefix: "VaultX-Async-"
+    scheduling:
+      pool:
+        size: 5
+      thread-name-prefix: "VaultX-Scheduler-"
 
 server:
   port: ${PORT:8080}
@@ -54,21 +67,6 @@ logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-
-# Async configuration for production
-spring:
-  task:
-    execution:
-      pool:
-        core-size: 10
-        max-size: 50
-        queue-capacity: 200
-        keep-alive: 120s
-      thread-name-prefix: "VaultX-Async-"
-    scheduling:
-      pool:
-        size: 5
-      thread-name-prefix: "VaultX-Scheduler-"
 
 # JWT Configuration
 jwt:
