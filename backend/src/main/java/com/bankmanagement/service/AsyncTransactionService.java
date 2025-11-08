@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -91,34 +92,41 @@ public class AsyncTransactionService {
     @Async("taskExecutor")
     public CompletableFuture<Map<String, Object>> recalculateAllAccountBalancesAsync() {
         System.out.println("🔄 Starting async balance recalculation: " + Thread.currentThread().getName());
-        
+
         try {
+            // First, validate data integrity
+            Map<String, Object> integrityCheck = validateDataIntegrity();
+            if (!(Boolean) integrityCheck.get("isValid")) {
+                System.err.println("❌ Data integrity issues found: " + integrityCheck.get("issues"));
+                Map<String, Object> errorResult = new ConcurrentHashMap<>();
+                errorResult.put("error", "Data integrity validation failed");
+                errorResult.put("issues", integrityCheck.get("issues"));
+                return CompletableFuture.completedFuture(errorResult);
+            }
+
             List<Account> accounts = accountRepository.findAll();
-            System.out.println("📊 Processing " + accounts.size() + " accounts in parallel");
-            
-            // Process accounts in parallel
-            List<CompletableFuture<Account>> futures = accounts.parallelStream()
-                .map(this::recalculateAccountBalanceAsync)
-                .collect(Collectors.toList());
-            
-            // Wait for all calculations to complete
-            CompletableFuture<Void> allOf = CompletableFuture.allOf(
-                futures.toArray(new CompletableFuture[0])
-            );
-            
-            return allOf.thenApply(v -> {
-                List<Account> updatedAccounts = futures.stream()
-                    .map(CompletableFuture::join)
-                    .collect(Collectors.toList());
-                
-                Map<String, Object> result = new ConcurrentHashMap<>();
-                result.put("processedAccounts", updatedAccounts.size());
-                result.put("timestamp", LocalDateTime.now());
-                result.put("threadName", Thread.currentThread().getName());
-                
-                return result;
-            });
-            
+            System.out.println("📊 Processing " + accounts.size() + " accounts sequentially");
+
+            // Process accounts sequentially to avoid transaction conflicts
+            Map<String, Object> result = new ConcurrentHashMap<>();
+            List<Account> updatedAccounts = new ArrayList<>();
+
+            for (Account account : accounts) {
+                try {
+                    Account updated = recalculateAccountBalanceAsync(account).get(); // Wait for each
+                    updatedAccounts.add(updated);
+                } catch (Exception e) {
+                    System.err.println("❌ Failed to recalculate account " + account.getAccountNumber() + ": " + e.getMessage());
+                    // Continue with other accounts instead of failing completely
+                }
+            }
+
+            result.put("processedAccounts", updatedAccounts.size());
+            result.put("timestamp", LocalDateTime.now());
+            result.put("threadName", Thread.currentThread().getName());
+
+            return CompletableFuture.completedFuture(result);
+
         } catch (Exception e) {
             System.err.println("❌ Async balance recalculation failed: " + e.getMessage());
             return CompletableFuture.failedFuture(e);
@@ -126,7 +134,6 @@ public class AsyncTransactionService {
     }
 
     @Async("taskExecutor")
-    @Transactional
     public CompletableFuture<Account> recalculateAccountBalanceAsync(Account account) {
         try {
             System.out.println("🔍 Recalculating balance for account " + account.getAccountNumber() + 
@@ -248,6 +255,67 @@ public class AsyncTransactionService {
             
             accountRepository.save(account);
         }
+    }
+
+    // Data integrity validation
+    private Map<String, Object> validateDataIntegrity() {
+        Map<String, Object> result = new ConcurrentHashMap<>();
+        List<String> issues = new ArrayList<>();
+        boolean isValid = true;
+
+        try {
+            // Basic data count validation
+            long accountCount = accountRepository.count();
+            long transactionCount = transactionRepository.count();
+
+            if (accountCount == 0) {
+                issues.add("No accounts found in database");
+                isValid = false;
+            }
+
+            if (transactionCount == 0) {
+                issues.add("No transactions found in database");
+                // This might be valid for a new system, so don't set isValid = false
+            }
+
+            // Check for transactions with invalid account references
+            long invalidTransactionRefs = transactionRepository.findAll().stream()
+                .filter(t -> !accountRepository.existsById(t.getAccountId()))
+                .count();
+
+            if (invalidTransactionRefs > 0) {
+                issues.add("Found " + invalidTransactionRefs + " transactions referencing non-existent accounts");
+                isValid = false;
+            }
+
+            // Check for transactions with invalid destination account references
+            long invalidDestRefs = transactionRepository.findAll().stream()
+                .filter(t -> t.getDestinationAccountId() != null && !accountRepository.existsById(t.getDestinationAccountId()))
+                .count();
+
+            if (invalidDestRefs > 0) {
+                issues.add("Found " + invalidDestRefs + " transactions with invalid destination account references");
+                isValid = false;
+            }
+
+            // Check for accounts with negative balances (potential data corruption)
+            long negativeBalanceAccounts = accountRepository.findAll().stream()
+                .filter(account -> account.getBalance().compareTo(BigDecimal.ZERO) < 0)
+                .count();
+
+            if (negativeBalanceAccounts > 0) {
+                issues.add("Found " + negativeBalanceAccounts + " accounts with negative balances");
+                // This might be valid in some cases, so don't set isValid = false
+            }
+
+        } catch (Exception e) {
+            issues.add("Error during data integrity check: " + e.getMessage());
+            isValid = false;
+        }
+
+        result.put("isValid", isValid);
+        result.put("issues", issues);
+        return result;
     }
 
     // Getters for metrics
