@@ -16,10 +16,10 @@ spring:
       leak-detection-threshold: 60000
       auto-commit: false
       data-source-properties:
-        # PostgreSQL connection properties to reduce prepared statement conflicts
-        # prepareThreshold: 1 means prepared statements are created after first use
-        # This reduces conflicts when transactions are rolled back
-        prepareThreshold: 1
+        # Disable server-side prepared statements for connection poolers (pgbouncer)
+        # Connection poolers don't preserve prepared statements across connection reuse
+        # prepareThreshold: 0 means use client-side prepared statements only
+        prepareThreshold: 0
         # Optimize batch inserts
         reWriteBatchedInserts: true
   
@@ -29,13 +29,12 @@ spring:
     show-sql: false
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        # Remove explicit dialect - Hibernate will auto-detect PostgreSQL
         format_sql: false
         jdbc:
           time_zone: UTC
         connection:
           provider_disables_autocommit: false
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
   
   security:
     user:
