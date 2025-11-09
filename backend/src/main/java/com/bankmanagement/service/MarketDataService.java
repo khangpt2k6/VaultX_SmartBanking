@@ -5,7 +5,10 @@ import com.bankmanagement.repository.AssetRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -26,6 +29,12 @@ public class MarketDataService {
     
     @Autowired
     private AssetRepository assetRepository;
+    
+    // Self-injection to ensure transaction proxy is used for REQUIRES_NEW
+    // @Lazy prevents circular dependency issues
+    @Autowired
+    @Lazy
+    private MarketDataService self;
     
     private final Random random = new Random();
     
@@ -84,37 +93,90 @@ public class MarketDataService {
     
     /**
      * Update asset price with realistic variation
+     * Uses REQUIRES_NEW propagation to ensure each update is in its own transaction
+     * This prevents one failure from aborting the entire batch
      */
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public Asset updateAssetPrice(Long assetId) {
-        Optional<Asset> assetOpt = assetRepository.findById(assetId);
-        if (assetOpt.isEmpty()) {
-            return null;
+        try {
+            Optional<Asset> assetOpt = assetRepository.findById(assetId);
+            if (assetOpt.isEmpty()) {
+                log.warn("Asset not found with ID: {}", assetId);
+                return null;
+            }
+            
+            Asset asset = assetOpt.get();
+            BigDecimal previousPrice = asset.getCurrentPrice();
+            
+            // Validate price is not null or zero
+            if (previousPrice == null || previousPrice.compareTo(BigDecimal.ZERO) <= 0) {
+                log.warn("Invalid price for asset ID {}: {}", assetId, previousPrice);
+                return asset;
+            }
+            
+            // Simulate price change (±2% variation)
+            double changePercent = (random.nextDouble() - 0.5) * 0.04;
+            BigDecimal newPrice = previousPrice.multiply(BigDecimal.valueOf(1 + changePercent));
+            
+            asset.setPreviousPrice(previousPrice);
+            asset.setCurrentPrice(newPrice);
+            asset.setChangePercent(calculateChangePercent(previousPrice, newPrice));
+            asset.setLastUpdated(LocalDateTime.now());
+            
+            return assetRepository.save(asset);
+        } catch (Exception e) {
+            log.error("Error updating asset price for ID {}: {}", assetId, e.getMessage(), e);
+            throw e; // Re-throw to trigger rollback
         }
-        
-        Asset asset = assetOpt.get();
-        BigDecimal previousPrice = asset.getCurrentPrice();
-        
-        // Simulate price change (±2% variation)
-        double changePercent = (random.nextDouble() - 0.5) * 0.04;
-        BigDecimal newPrice = previousPrice.multiply(BigDecimal.valueOf(1 + changePercent));
-        
-        asset.setPreviousPrice(previousPrice);
-        asset.setCurrentPrice(newPrice);
-        asset.setChangePercent(calculateChangePercent(previousPrice, newPrice));
-        asset.setLastUpdated(LocalDateTime.now());
-        
-        return assetRepository.save(asset);
     }
     
     /**
      * Update all active asset prices
+     * Each asset update runs in its own transaction (REQUIRES_NEW) to prevent
+     * one failure from aborting the entire batch
      */
     public List<Asset> updateAllAssetPrices() {
-        List<Asset> assets = assetRepository.findByIsActiveTrue();
-        for (Asset asset : assets) {
-            updateAssetPrice(asset.getAssetId());
+        try {
+            // Fetch assets in a separate read transaction
+            List<Asset> assets = fetchActiveAssets();
+            log.debug("Updating {} active assets", assets.size());
+            
+            List<Asset> updatedAssets = new ArrayList<>();
+            int successCount = 0;
+            int failureCount = 0;
+            
+            for (Asset asset : assets) {
+                try {
+                    // Use self-injected proxy to ensure transaction boundaries are respected
+                    Asset updated = self.updateAssetPrice(asset.getAssetId());
+                    if (updated != null) {
+                        updatedAssets.add(updated);
+                        successCount++;
+                    }
+                } catch (Exception e) {
+                    failureCount++;
+                    log.error("Failed to update asset {} ({}): {}", 
+                            asset.getAssetId(), asset.getSymbol(), e.getMessage());
+                    // Continue with other assets instead of failing completely
+                }
+            }
+            
+            log.info("Asset price update completed: {} succeeded, {} failed out of {}", 
+                    successCount, failureCount, assets.size());
+            
+            return updatedAssets;
+        } catch (Exception e) {
+            log.error("Error in updateAllAssetPrices: {}", e.getMessage(), e);
+            throw e;
         }
-        return assets;
+    }
+    
+    /**
+     * Fetch active assets in a read-only transaction
+     */
+    @Transactional(readOnly = true)
+    private List<Asset> fetchActiveAssets() {
+        return assetRepository.findByIsActiveTrue();
     }
     
     /**
@@ -127,6 +189,7 @@ public class MarketDataService {
     /**
      * Get all active assets
      */
+    @Transactional(readOnly = true)
     public List<Asset> getAllActiveAssets() {
         return assetRepository.findByIsActiveTrue();
     }
@@ -160,6 +223,7 @@ public class MarketDataService {
     /**
      * Get market data summary
      */
+    @Transactional(readOnly = true)
     public Map<String, Object> getMarketSummary() {
         List<Asset> assets = getAllActiveAssets();
         
@@ -169,12 +233,14 @@ public class MarketDataService {
         
         for (Asset asset : assets) {
             BigDecimal change = asset.getChangePercent();
-            if (change.compareTo(BigDecimal.ZERO) > 0) {
-                gainers++;
-            } else if (change.compareTo(BigDecimal.ZERO) < 0) {
-                losers++;
-            } else {
-                unchanged++;
+            if (change != null) {
+                if (change.compareTo(BigDecimal.ZERO) > 0) {
+                    gainers++;
+                } else if (change.compareTo(BigDecimal.ZERO) < 0) {
+                    losers++;
+                } else {
+                    unchanged++;
+                }
             }
         }
         

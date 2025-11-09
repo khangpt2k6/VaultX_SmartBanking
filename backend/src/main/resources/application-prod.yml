@@ -14,7 +14,14 @@ spring:
       idle-timeout: 300000
       max-lifetime: 600000
       leak-detection-threshold: 60000
-      auto-commit: true
+      auto-commit: false
+      data-source-properties:
+        # PostgreSQL connection properties to reduce prepared statement conflicts
+        # prepareThreshold: 1 means prepared statements are created after first use
+        # This reduces conflicts when transactions are rolled back
+        prepareThreshold: 1
+        # Optimize batch inserts
+        reWriteBatchedInserts: true
   
   jpa:
     hibernate:

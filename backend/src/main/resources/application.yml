@@ -14,7 +14,7 @@ spring:
       idle-timeout: 600000
       max-lifetime: 1200000
       leak-detection-threshold: 120000
-      auto-commit: true
+      auto-commit: false
 
   jpa:
     hibernate:

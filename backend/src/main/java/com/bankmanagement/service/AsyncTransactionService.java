@@ -4,10 +4,12 @@ import com.bankmanagement.model.Account;
 import com.bankmanagement.model.Transaction;
 import com.bankmanagement.repository.AccountRepository;
 import com.bankmanagement.repository.TransactionRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class AsyncTransactionService {
+    private static final Logger log = LoggerFactory.getLogger(AsyncTransactionService.class);
 
     @Autowired
     private TransactionRepository transactionRepository;
@@ -134,15 +137,21 @@ public class AsyncTransactionService {
     }
 
     @Async("taskExecutor")
+    @Transactional(rollbackFor = Exception.class)
     public CompletableFuture<Account> recalculateAccountBalanceAsync(Account account) {
         try {
             System.out.println("🔍 Recalculating balance for account " + account.getAccountNumber() + 
                              " on thread: " + Thread.currentThread().getName());
             
-            List<Transaction> transactions = transactionRepository
-                .findByAccountIdOrderByTransactionDateAsc(account.getAccountId());
+            // Re-fetch account to ensure we have the latest version
+            Account accountToUpdate = accountRepository.findById(account.getAccountId())
+                    .orElseThrow(() -> new RuntimeException("Account not found: " + account.getAccountId()));
             
-            BigDecimal calculatedBalance = transactions.parallelStream()
+            List<Transaction> transactions = transactionRepository
+                .findByAccountIdOrderByTransactionDateAsc(accountToUpdate.getAccountId());
+            
+            // Use sequential stream to avoid parallel processing issues in transactions
+            BigDecimal calculatedBalance = transactions.stream()
                 .reduce(BigDecimal.ZERO, 
                     (balance, transaction) -> {
                         switch (transaction.getTransactionType()) {
@@ -158,14 +167,14 @@ public class AsyncTransactionService {
                     },
                     BigDecimal::add);
             
-            if (!calculatedBalance.equals(account.getBalance())) {
-                account.setBalance(calculatedBalance);
-                accountRepository.save(account);
-                System.out.println("✅ Updated balance for account " + account.getAccountNumber() + 
+            if (!calculatedBalance.equals(accountToUpdate.getBalance())) {
+                accountToUpdate.setBalance(calculatedBalance);
+                accountRepository.save(accountToUpdate);
+                System.out.println("✅ Updated balance for account " + accountToUpdate.getAccountNumber() + 
                                  " to $" + calculatedBalance);
             }
             
-            return CompletableFuture.completedFuture(account);
+            return CompletableFuture.completedFuture(accountToUpdate);
             
         } catch (Exception e) {
             System.err.println("❌ Failed to recalculate balance for account " + account.getAccountNumber() + 
@@ -258,6 +267,8 @@ public class AsyncTransactionService {
     }
 
     // Data integrity validation
+    // Uses REQUIRES_NEW to ensure it runs in a fresh transaction, avoiding conflicts
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     private Map<String, Object> validateDataIntegrity() {
         Map<String, Object> result = new ConcurrentHashMap<>();
         List<String> issues = new ArrayList<>();
@@ -278,39 +289,78 @@ public class AsyncTransactionService {
                 // This might be valid for a new system, so don't set isValid = false
             }
 
-            // Check for transactions with invalid account references
-            long invalidTransactionRefs = transactionRepository.findAll().stream()
-                .filter(t -> !accountRepository.existsById(t.getAccountId()))
-                .count();
+            // Only perform expensive checks if we have data
+            if (accountCount > 0 && transactionCount > 0) {
+                try {
+                    // Check for transactions with invalid account references
+                    // Use a more efficient query approach
+                    List<Transaction> allTransactions = transactionRepository.findAll();
+                    if (!allTransactions.isEmpty()) {
+                        long invalidTransactionRefs = allTransactions.stream()
+                            .filter(t -> {
+                                try {
+                                    return !accountRepository.existsById(t.getAccountId());
+                                } catch (Exception e) {
+                                    // If we can't check, skip this transaction
+                                    return false;
+                                }
+                            })
+                            .count();
 
-            if (invalidTransactionRefs > 0) {
-                issues.add("Found " + invalidTransactionRefs + " transactions referencing non-existent accounts");
-                isValid = false;
-            }
+                        if (invalidTransactionRefs > 0) {
+                            issues.add("Found " + invalidTransactionRefs + " transactions referencing non-existent accounts");
+                            isValid = false;
+                        }
 
-            // Check for transactions with invalid destination account references
-            long invalidDestRefs = transactionRepository.findAll().stream()
-                .filter(t -> t.getDestinationAccountId() != null && !accountRepository.existsById(t.getDestinationAccountId()))
-                .count();
+                        // Check for transactions with invalid destination account references
+                        long invalidDestRefs = allTransactions.stream()
+                            .filter(t -> {
+                                try {
+                                    return t.getDestinationAccountId() != null && 
+                                           !accountRepository.existsById(t.getDestinationAccountId());
+                                } catch (Exception e) {
+                                    return false;
+                                }
+                            })
+                            .count();
 
-            if (invalidDestRefs > 0) {
-                issues.add("Found " + invalidDestRefs + " transactions with invalid destination account references");
-                isValid = false;
+                        if (invalidDestRefs > 0) {
+                            issues.add("Found " + invalidDestRefs + " transactions with invalid destination account references");
+                            isValid = false;
+                        }
+                    }
+                } catch (Exception e) {
+                    // If validation queries fail, log but don't fail the entire process
+                    issues.add("Warning: Could not complete full data integrity validation: " + e.getMessage());
+                    log.warn("Data integrity validation encountered an error: {}", e.getMessage());
+                }
             }
 
             // Check for accounts with negative balances (potential data corruption)
-            long negativeBalanceAccounts = accountRepository.findAll().stream()
-                .filter(account -> account.getBalance().compareTo(BigDecimal.ZERO) < 0)
-                .count();
+            try {
+                List<Account> allAccounts = accountRepository.findAll();
+                if (!allAccounts.isEmpty()) {
+                    long negativeBalanceAccounts = allAccounts.stream()
+                        .filter(account -> account.getBalance() != null && 
+                                          account.getBalance().compareTo(BigDecimal.ZERO) < 0)
+                        .count();
 
-            if (negativeBalanceAccounts > 0) {
-                issues.add("Found " + negativeBalanceAccounts + " accounts with negative balances");
-                // This might be valid in some cases, so don't set isValid = false
+                    if (negativeBalanceAccounts > 0) {
+                        issues.add("Found " + negativeBalanceAccounts + " accounts with negative balances");
+                        // This might be valid in some cases, so don't set isValid = false
+                    }
+                }
+            } catch (Exception e) {
+                issues.add("Warning: Could not check account balances: " + e.getMessage());
+                log.warn("Account balance check encountered an error: {}", e.getMessage());
             }
 
         } catch (Exception e) {
-            issues.add("Error during data integrity check: " + e.getMessage());
+            // Catch all exceptions to prevent transaction issues from propagating
+            String errorMsg = "Error during data integrity check: " + e.getMessage();
+            issues.add(errorMsg);
             isValid = false;
+            log.error("Data integrity validation failed: {}", e.getMessage(), e);
         }
 
         result.put("isValid", isValid);

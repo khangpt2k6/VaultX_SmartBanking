@@ -1,7 +1,7 @@
 package com.bankmanagement.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "roles")
@@ -12,7 +12,7 @@ public class Role {
     @Column(name = "role_id")
     private Long roleId;
     
-    @NotBlank(message = "Role name is required")
+    @NotNull(message = "Role name is required")
     @Enumerated(EnumType.STRING)
     @Column(name = "role_name", nullable = false, unique = true)
     private RoleName roleName;
