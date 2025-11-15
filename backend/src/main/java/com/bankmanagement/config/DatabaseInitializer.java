@@ -4,7 +4,6 @@ import com.bankmanagement.model.Role;
 import com.bankmanagement.model.User;
 import com.bankmanagement.repository.RoleRepository;
 import com.bankmanagement.repository.UserRepository;
-import com.bankmanagement.service.MarketDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.io.ClassPathResource;
@@ -21,9 +20,6 @@ public class DatabaseInitializer implements CommandLineRunner {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
-    
-    @Autowired
-    private MarketDataService marketDataService;
     
     @Autowired
     private UserRepository userRepository;
@@ -52,15 +48,6 @@ public class DatabaseInitializer implements CommandLineRunner {
         } catch (Exception e) {
             System.err.println("⚠️ Failed to initialize roles and admin: " + e.getMessage());
             e.printStackTrace();
-        }
-        
-        // Initialize trading assets
-        try {
-            System.out.println("🔄 Initializing trading assets...");
-            marketDataService.initializeDefaultAssets();
-            System.out.println("✅ Trading assets initialized!");
-        } catch (Exception e) {
-            System.err.println("⚠️ Failed to initialize trading assets: " + e.getMessage());
         }
     }
 

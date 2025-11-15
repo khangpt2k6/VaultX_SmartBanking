@@ -101,10 +101,39 @@
   color: inherit;
 }
 
+.chevron-wrapper {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.25rem;
+  flex-shrink: 0;
+}
+
 .chevron-icon {
   transition: all 0.2s ease;
-  margin-left: 0.25rem;
   opacity: 0.7;
+  display: block;
+  width: 12px;
+  height: 12px;
+}
+
+/* Ensure only one chevron icon per button - hide all duplicates */
+.nav-link.dropdown-toggle .chevron-wrapper ~ .chevron-wrapper,
+.dropdown-toggle .chevron-wrapper ~ .chevron-wrapper,
+.nav-link.dropdown-toggle .chevron-icon ~ .chevron-icon,
+.nav-link.dropdown-toggle svg.chevron-icon ~ svg.chevron-icon {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Ensure only one chevron wrapper exists */
+.nav-link.dropdown-toggle .chevron-wrapper:not(:last-child) {
+  display: none !important;
+}
+
+/* Ensure button only contains one chevron */
+.nav-link.dropdown-toggle {
+  position: relative;
 }
 
 /* Dropdowns */

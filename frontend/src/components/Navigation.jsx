@@ -151,7 +151,9 @@ const Navigation = () => {
               }}
             >
               <span>Banking</span>
-              <ChevronDown size={12} className="chevron-icon" />
+              <span className="chevron-wrapper">
+                <ChevronDown size={12} className="chevron-icon" />
+              </span>
             </button>
             {desktopDropdownOpen === "banking" && bankingMenuPosition.top > 0 && createPortal(
               <div 
@@ -260,7 +262,9 @@ const Navigation = () => {
               }}
             >
               <span>Trading</span>
-              <ChevronDown size={12} className="chevron-icon" />
+              <span className="chevron-wrapper">
+                <ChevronDown size={12} className="chevron-icon" />
+              </span>
             </button>
             {desktopDropdownOpen === "trading" && tradingMenuPosition.top > 0 && createPortal(
               <div 
