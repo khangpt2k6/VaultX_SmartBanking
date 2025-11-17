@@ -16,10 +16,7 @@ import TransactionForm from "./components/TransactionForm";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Welcome from "./components/Welcome";
-import Trading from "./components/Trading";
-import Portfolio from "./components/Portfolio";
-import Funding from "./components/Funding";
-import TradeHistory from "./components/TradeHistory";
+import PaymentProcessor from "./components/PaymentProcessor";
 
 function AppContent() {
   const location = useLocation();
@@ -124,36 +121,12 @@ function AppContent() {
                 }
               />
 
-              {/* Trading Routes */}
+              {/* Payment Processor Routes */}
               <Route
-                path="/trading"
+                path="/payments"
                 element={
                   <ProtectedRoute>
-                    <Trading />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/portfolio"
-                element={
-                  <ProtectedRoute>
-                    <Portfolio />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/funding"
-                element={
-                  <ProtectedRoute>
-                    <Funding />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/trade-history"
-                element={
-                  <ProtectedRoute>
-                    <TradeHistory />
+                    <PaymentProcessor />
                   </ProtectedRoute>
                 }
               />

@@ -22,11 +22,8 @@ const Navigation = () => {
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState(null);
   const dropdownRef = useRef(null);
   const bankingButtonRef = useRef(null);
-  const tradingButtonRef = useRef(null);
   const bankingMenuRef = useRef(null);
-  const tradingMenuRef = useRef(null);
   const [bankingMenuPosition, setBankingMenuPosition] = useState({ top: 0, left: 0 });
-  const [tradingMenuPosition, setTradingMenuPosition] = useState({ top: 0, left: 0 });
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -45,13 +42,6 @@ const Navigation = () => {
     if (desktopDropdownOpen === "banking" && bankingButtonRef.current) {
       const rect = bankingButtonRef.current.getBoundingClientRect();
       setBankingMenuPosition({
-        top: rect.bottom + 8,
-        left: rect.left,
-      });
-    }
-    if (desktopDropdownOpen === "trading" && tradingButtonRef.current) {
-      const rect = tradingButtonRef.current.getBoundingClientRect();
-      setTradingMenuPosition({
         top: rect.bottom + 8,
         left: rect.left,
       });
@@ -93,10 +83,7 @@ const Navigation = () => {
         return;
       }
       // Don't close if clicking inside the dropdown menu
-      if (
-        (bankingMenuRef.current && bankingMenuRef.current.contains(target)) ||
-        (tradingMenuRef.current && tradingMenuRef.current.contains(target))
-      ) {
+      if (bankingMenuRef.current && bankingMenuRef.current.contains(target)) {
         return;
       }
       setDesktopDropdownOpen(null);
@@ -239,92 +226,11 @@ const Navigation = () => {
             )}
           </div>
 
-          {/* Trading Dropdown */}
-          <div
-            className={`nav-dropdown ${
-              desktopDropdownOpen === "trading" ? "open" : ""
-            }`}
-            onMouseLeave={() => {
-              setDesktopDropdownOpen(null);
-            }}
-          >
-            <button
-              ref={tradingButtonRef}
-              type="button"
-              className="nav-link dropdown-toggle"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                toggleDesktopDropdown("trading");
-              }}
-              onMouseEnter={() => {
-                setDesktopDropdownOpen("trading");
-              }}
-            >
-              <span>Trading</span>
-              <span className="chevron-wrapper">
-                <ChevronDown size={12} className="chevron-icon" />
-              </span>
-            </button>
-            {desktopDropdownOpen === "trading" && tradingMenuPosition.top > 0 && createPortal(
-              <div 
-                ref={tradingMenuRef}
-                className="dropdown-menu"
-                style={{
-                  position: 'fixed',
-                  top: `${tradingMenuPosition.top}px`,
-                  left: `${tradingMenuPosition.left}px`,
-                  zIndex: 1004,
-                  opacity: 1,
-                  visibility: 'visible',
-                  display: 'block',
-                }}
-                onMouseEnter={() => setDesktopDropdownOpen("trading")}
-                onMouseLeave={(e) => {
-                  // Don't close if moving to button
-                  const relatedTarget = e.relatedTarget;
-                  if (relatedTarget && tradingButtonRef.current && tradingButtonRef.current.contains(relatedTarget)) {
-                    return;
-                  }
-                }}
-                onClick={(e) => e.stopPropagation()}
-              >
-              <Link
-                to="/trading"
-                className="dropdown-item"
-                onClick={() => setDesktopDropdownOpen(null)}
-              >
-                <GraphUp size={16} />
-                Trading
-              </Link>
-              <Link
-                to="/portfolio"
-                className="dropdown-item"
-                onClick={() => setDesktopDropdownOpen(null)}
-              >
-                <CreditCard size={16} />
-                Portfolio
-              </Link>
-              <Link
-                to="/funding"
-                className="dropdown-item"
-                onClick={() => setDesktopDropdownOpen(null)}
-              >
-                <CreditCard size={16} />
-                Deposit
-              </Link>
-              <Link
-                to="/trade-history"
-                className="dropdown-item"
-                onClick={() => setDesktopDropdownOpen(null)}
-              >
-                <ArrowLeftRight size={16} />
-                Trade History
-              </Link>
-              </div>,
-              document.body
-            )}
-          </div>
+          {/* Payment Processor Link */}
+          <Link to="/payments" className="nav-link">
+            <GraphUp size={16} />
+            <span>Payment Processor</span>
+          </Link>
         </div>
 
         {/* Right side - Auth or Menu Toggle */}
@@ -426,54 +332,15 @@ const Navigation = () => {
             )}
           </div>
 
-          {/* Trading Dropdown */}
-          <div className="mobile-dropdown">
-            <button
-              className="mobile-dropdown-toggle"
-              onClick={() => toggleMobileDropdown("trading")}
-            >
-              <GraphUp size={18} />
-              <span>Trading</span>
-              <ChevronDown
-                size={14}
-                className={`chevron-icon ${
-                  mobileDropdownOpen === "trading" ? "open" : ""
-                }`}
-              />
-            </button>
-            {mobileDropdownOpen === "trading" && (
-              <div className="mobile-dropdown-menu">
-                <Link
-                  to="/trading"
-                  className="mobile-dropdown-item"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Trading
-                </Link>
-                <Link
-                  to="/portfolio"
-                  className="mobile-dropdown-item"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Portfolio
-                </Link>
-                <Link
-                  to="/funding"
-                  className="mobile-dropdown-item"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Deposit
-                </Link>
-                <Link
-                  to="/trade-history"
-                  className="mobile-dropdown-item"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Trade History
-                </Link>
-              </div>
-            )}
-          </div>
+          {/* Payment Processor Link */}
+          <Link
+            to="/payments"
+            className="mobile-nav-link"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <GraphUp size={18} />
+            <span>Payment Processor</span>
+          </Link>
 
           {isAuthenticated && (
             <button
