@@ -70,6 +70,13 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
+        <!-- LMAX Disruptor — lock-free inter-thread messaging for per-symbol order routing -->
+        <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
         <!-- SLF4J API -->
         <dependency>
             <groupId>org.slf4j</groupId>

@@ -223,6 +223,8 @@ public class TradingService {
             tradeType,
             quantity,
             limitPrice,
+            null,
+            "LIMIT",
             LocalDateTime.now()
         );
         synchronized (restingBookLock) {
@@ -354,6 +356,8 @@ public class TradingService {
         Trade.TradeType side,
         BigDecimal quantity,
         BigDecimal limitPrice,
+        BigDecimal stopPrice,   // null = plain limit; non-null = stop or stop-limit
+        String orderType,       // "LIMIT", "STOP", "STOP_LIMIT"
         LocalDateTime placedAt
     ) {
     }

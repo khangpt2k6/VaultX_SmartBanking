@@ -1,5 +1,6 @@
 package com.bankmanagement.service;
 
+import com.bankmanagement.engine.disruptor.DisruptorOrderRouter;
 import com.bankmanagement.model.Asset;
 import com.bankmanagement.repository.AssetRepository;
 import jakarta.annotation.PostConstruct;
@@ -32,6 +33,7 @@ public class MarketDataService {
     private final AssetRepository assetRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final TradingService tradingService;
+    private final DisruptorOrderRouter disruptorRouter;
     private final Map<String, Deque<Map<String, Object>>> priceHistory = new ConcurrentHashMap<>();
     private final AtomicLong tickCount = new AtomicLong(0);
     private final AtomicLong lastBatchTs = new AtomicLong(System.currentTimeMillis());
@@ -39,10 +41,12 @@ public class MarketDataService {
 
     public MarketDataService(AssetRepository assetRepository,
                              SimpMessagingTemplate messagingTemplate,
-                             TradingService tradingService) {
+                             TradingService tradingService,
+                             DisruptorOrderRouter disruptorRouter) {
         this.assetRepository = assetRepository;
         this.messagingTemplate = messagingTemplate;
         this.tradingService = tradingService;
+        this.disruptorRouter = disruptorRouter;
     }
 
     @PostConstruct
@@ -55,6 +59,9 @@ public class MarketDataService {
         for (Asset asset : assets) {
             priceHistory.put(asset.getSymbol(), new ArrayDeque<>());
             addHistoryPoint(asset.getSymbol(), asset.getCurrentPrice());
+            // One Disruptor ring buffer per symbol — per-symbol writer threads eliminate
+            // cross-symbol lock contention on the resting order book.
+            disruptorRouter.registerSymbol(asset.getSymbol(), tradingService::onMarketPrice);
         }
     }
 
@@ -75,7 +82,10 @@ public class MarketDataService {
             .toList();
 
         assetRepository.saveAll(assets);
-        assets.parallelStream().forEach(a -> tradingService.onMarketPrice(a.getSymbol(), a.getCurrentPrice()));
+        // Publish each price update to the symbol's Disruptor ring — lock-free CAS claim,
+        // no cross-symbol contention. Falls back to direct call for any symbol not yet registered.
+        assets.parallelStream().forEach(a ->
+            disruptorRouter.publish(a.getSymbol(), a.getCurrentPrice(), tradingService::onMarketPrice));
 
         long total = tickCount.addAndGet(ticks.size());
         long now = Instant.now().toEpochMilli();
