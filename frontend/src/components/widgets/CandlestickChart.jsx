@@ -284,7 +284,7 @@ const CandlestickChart = ({ ticks, symbol }) => {
 
         {/* Timeframe selector — pushed to right */}
         <div className="ml-auto inline-flex gap-0.5 border border-tf-border bg-black/60 p-0.5">
-          {Object.keys(INTERVALS).map((k) => (
+          {SUPPORTED_INTERVALS.map((k) => (
             <button
               key={k}
               type="button"
